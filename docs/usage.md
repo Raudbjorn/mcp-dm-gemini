@@ -1,6 +1,6 @@
 # Usage Guide
 
-This guide will show you how to use the TTRPG Assistant's web interface and command-line interface (CLI).
+This guide will show you how to use the TTRPG Assistant's web interface, command-line interface (CLI), and Discord bot.
 
 ## Web Interface
 
@@ -49,3 +49,26 @@ For a full list of commands and their options, run the following command:
 ```bash
 python cli.py --help
 ```
+
+## Discord Bot
+
+The TTRPG Assistant can also be used through a Discord bot. To use the bot, you will need to create a Discord application and add the bot to your server.
+
+### Creating a Discord Bot
+
+1.  Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+2.  Click the "New Application" button.
+3.  Give your application a name and click "Create".
+4.  Go to the "Bot" tab and click "Add Bot".
+5.  Copy the bot's token.
+6.  Open the `config/config.yaml` file and paste the token into the `discord.token` field.
+7.  Go to the "OAuth2" tab and select the "bot" scope.
+8.  Select the "Send Messages" and "Read Message History" permissions.
+9.  Copy the generated URL and paste it into your browser to add the bot to your server.
+
+### Using the Bot
+
+Once the bot is in your server, you can use the following commands:
+
+*   `!ping`: Checks if the bot is online.
+*   `!search <query>`: Searches for rulebook content.

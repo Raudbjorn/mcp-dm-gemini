@@ -10,3 +10,6 @@ requests
 fakeredis
 svgwrite
 discord.py
+pytest
+pytest-asyncio
+pytest-discord

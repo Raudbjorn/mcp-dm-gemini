@@ -1,6 +1,8 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 from discord_bot.main import bot
+import discord
+import asyncio
 
 class TestDiscordBot(unittest.TestCase):
 
@@ -11,7 +13,7 @@ class TestDiscordBot(unittest.TestCase):
         self.assertIsNotNone(bot.get_command("ping"))
 
     @patch('requests.post')
-    def test_search_command(self, mock_post):
+    def test_search_command_with_results(self, mock_post):
         mock_post.return_value.json.return_value = {
             "results": [
                 {
@@ -25,9 +27,22 @@ class TestDiscordBot(unittest.TestCase):
             ]
         }
         
-        # This is a simplified test that doesn't actually run the bot.
-        # It just checks that the command is registered.
-        self.assertIsNotNone(bot.get_command("search"))
+        ctx = AsyncMock()
+        search_command = bot.get_command("search")
+        asyncio.run(search_command.callback(ctx, query="test"))
+        
+        ctx.send.assert_called_once()
+        self.assertIsInstance(ctx.send.call_args.kwargs['embed'], discord.Embed)
+
+    @patch('requests.post')
+    def test_search_command_no_results(self, mock_post):
+        mock_post.return_value.json.return_value = {"results": []}
+        
+        ctx = AsyncMock()
+        search_command = bot.get_command("search")
+        asyncio.run(search_command.callback(ctx, query="test"))
+        
+        ctx.send.assert_called_once_with("No results found.")
 
 if __name__ == '__main__':
     unittest.main()

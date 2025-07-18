@@ -2,7 +2,23 @@
 
 This guide will walk you through the process of installing the TTRPG Assistant on your computer.
 
-## Step 1: Install Python
+## Option 1: Running with Docker (Recommended)
+
+The easiest way to run the TTRPG Assistant is with Docker. If you don't have Docker installed, you can download it from the official website:
+
+[https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+
+Once Docker is installed, you can run the TTRPG Assistant with a single command:
+
+```bash
+docker-compose up
+```
+
+This will build the necessary containers and start the application. You can then access the web interface at [http://localhost:8000/ui](http://localhost:8000/ui).
+
+## Option 2: Manual Installation
+
+### Step 1: Install Python
 
 The TTRPG Assistant is written in Python. If you don't already have Python installed, you can download it from the official website:
 
@@ -10,16 +26,16 @@ The TTRPG Assistant is written in Python. If you don't already have Python insta
 
 Download and run the installer for your operating system. During installation, make sure to check the box that says "Add Python to PATH".
 
-## Step 2: Install Redis
+### Step 2: Install Redis
 
 The TTRPG Assistant uses a database called Redis to store its data.
 
-### Windows
+#### Windows
 
 The easiest way to install Redis on Windows is to use the [Memurai](https://www.memurai.com/
 ) installer. Download and run the installer, and it will set up Redis to run as a service on your computer.
 
-### macOS
+#### macOS
 
 The easiest way to install Redis on macOS is to use [Homebrew](https://brew.sh/). If you don't have Homebrew installed, open the Terminal app and run the following command:
 
@@ -33,7 +49,7 @@ Once Homebrew is installed, you can install Redis by running the following comma
 brew install redis
 ```
 
-### Linux
+#### Linux
 
 You can install Redis using the package manager for your Linux distribution.
 
@@ -48,7 +64,7 @@ sudo apt-get install redis-server
 sudo dnf install redis
 ```
 
-## Step 3: Download and Run the TTRPG Assistant
+### Step 3: Download and Run the TTRPG Assistant
 
 1.  **Download the TTRPG Assistant:** You can download the latest version of the TTRPG Assistant from the [releases page](https://github.com/your-username/ttrpg-assistant/releases) on GitHub. Download the `ttrpg-assistant.zip` file and extract it to a folder on your computer.
 
