@@ -23,3 +23,6 @@ search:
 mcp:
   server_name: "ttrpg-assistant"
   version: "1.0.0"
+
+discord:
+  token: "YOUR_DISCORD_BOT_TOKEN"

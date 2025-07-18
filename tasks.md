@@ -173,9 +173,9 @@
 - [x] 17.1 Design and implement a marketplace for pre-processed content
 - [x] 17.2 Create a packaging format for content packs
 
-- [ ] 18. Implement Discord Integration
-- [ ] 18.1 Create a Discord bot
-- [ ] 18.2 Integrate TTRPG Assistant features into the bot
+- [x] 18. Implement Discord Integration
+- [x] 18.1 Create a Discord bot
+- [x] 18.2 Integrate TTRPG Assistant features into the bot
 
 - [x] 19. Finalize and release
 - [x] 19.1 Review and refine all code and documentation

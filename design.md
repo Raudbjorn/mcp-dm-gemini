@@ -18,6 +18,7 @@ graph TB
     C --> G[Campaign Manager]
     C --> M[Map Generator]
     C --> N[Content Packager]
+    C --> O[Discord Bot]
     
     D --> H[Raw PDF Files]
     E --> I[Sentence Transformers]
@@ -44,6 +45,7 @@ The system follows a modular design with clear separation of concerns:
 6.  **CLI Layer**: A command-line interface for interacting with the system.
 7.  **Map Generation Layer**: Generates simple SVG maps for combat encounters.
 8.  **Content Packager Layer**: Creates and loads content packs.
+9.  **Discord Bot Layer**: Integrates the TTRPG Assistant with Discord.
 
 ## Components and Interfaces
 
@@ -356,6 +358,7 @@ class SessionData(CampaignData):
 - **MCP Protocol**: Test tool registration and request/response handling
 - **Map Generator**: Test the generation of SVG maps
 - **Content Packager**: Test the creation and loading of content packs
+- **Discord Bot**: Test the bot's commands
 
 ### Integration Testing
 
@@ -407,6 +410,9 @@ search:
 mcp:
   server_name: "ttrpg-assistant"
   version: "1.0.0"
+
+discord:
+  token: "YOUR_DISCORD_BOT_TOKEN"
 ```
 
 ### Deployment Considerations

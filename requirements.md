@@ -142,3 +142,12 @@ This feature creates an MCP (Model Context Protocol) tool that enables LLMs to l
 
 1. WHEN a user wants to create a content pack THEN the system SHALL provide a tool to package up a source's content and personality into a single file.
 2. WHEN a user wants to install a content pack THEN the system SHALL provide a tool to unpack and install the content pack.
+
+### Requirement 14
+
+**User Story:** As a user, I want to be able to interact with the TTRPG Assistant through Discord, so that I can use its features in the same place where I play my games.
+
+#### Acceptance Criteria
+
+1. WHEN a user sends a command to the Discord bot THEN the bot SHALL respond with the requested information.
+2. WHEN a user searches for rulebook content THEN the bot SHALL display the results in an easy-to-read format.
