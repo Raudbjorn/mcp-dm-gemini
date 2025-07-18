@@ -152,8 +152,29 @@
 - [x] 11. Implement Non-Player Character (NPC) Generation
 - [x] 11.1 Create `generate_npc` tool
 
-- [x] 12. Finalize and release
-- [x] 12.1 Review and refine all code and documentation
-- [x] 12.2 Create release package with dependencies
-- [x] 12.3 Publish to repository with clear instructions
-- [x] 12.4 Announce availability to target users
+- [x] 12. Implement Interactive Character and NPC Generation
+- [x] 12.1 Create interactive CLI for character creation
+- [x] 12.2 Create interactive CLI for NPC creation
+
+- [ ] 13. Implement Web-Based User Interface (UI)
+- [ ] 13.1 Design and implement a simple web UI
+- [ ] 13.2 Integrate existing features into the UI
+
+- [ ] 14. Implement Session Management Tools
+- [ ] 14.1 Create initiative tracker tool
+- [ ] 14.2 Create monster health tracker tool
+- [ ] 14.3 Create session notes tool
+
+- [ ] 15. Implement Content Pack Marketplace
+- [ ] 15.1 Design and implement a marketplace for pre-processed content
+- [ ] 15.2 Create a packaging format for content packs
+
+- [ ] 16. Implement Discord Integration
+- [ ] 16.1 Create a Discord bot
+- [ ] 16.2 Integrate TTRPG Assistant features into the bot
+
+- [x] 17. Finalize and release
+- [x] 17.1 Review and refine all code and documentation
+- [x] 17.2 Create release package with dependencies
+- [x] 17.3 Publish to repository with clear instructions
+- [x] 17.4 Announce availability to target users

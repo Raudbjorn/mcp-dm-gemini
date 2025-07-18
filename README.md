@@ -10,6 +10,7 @@ This project is a Model Context Protocol (MCP) server designed to assist with Ta
 *   **LLM Personality Configuration:** Automatically extracts a "personality" from each rulebook to configure the LLM's voice and style.
 *   **Character Generation:** Tools to help you create player characters and generate rich backstories.
 *   **NPC Generation:** A flexible tool for generating non-player characters with stats appropriate to the player characters' level.
+*   **Interactive CLI:** Interactive sessions for character and NPC creation.
 *   **MCP Integration:** Exposes a standardized MCP interface for AI assistants to interact with the TTRPG data.
 *   **Command-Line Interface:** A user-friendly CLI for interacting with the server.
 *   **Export/Import:** Export and import campaign data for sharing and backup.
@@ -41,6 +42,16 @@ The TTRPG Assistant can be used via the command-line interface (CLI) or by sendi
 ### Command-Line Interface (CLI)
 
 The CLI provides a convenient way to interact with the server.
+
+**Interactively create a character:**
+```bash
+python cli.py gen-char "My Awesome Rulebook" "my-campaign"
+```
+
+**Interactively create an NPC:**
+```bash
+python cli.py gen-npc-interactive "My Awesome Rulebook" "my-campaign"
+```
 
 **Search for rulebook content:**
 ```bash
