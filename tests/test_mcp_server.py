@@ -4,6 +4,7 @@ from ttrpg_assistant.mcp_server.server import app
 from ttrpg_assistant.mcp_server.dependencies import get_redis_manager, get_embedding_service, get_pdf_parser
 from unittest.mock import MagicMock
 from ttrpg_assistant.data_models.models import SearchResult, ContentChunk
+import json
 
 class BaseMCPServerTest(unittest.TestCase):
     def setUp(self):
@@ -30,11 +31,11 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
 
-    def test_search_rulebook(self):
+    def test_search(self):
         self.mock_embedding_service.generate_embedding.return_value = [0.1] * 384
         self.mock_redis_manager.vector_search.return_value = []
 
-        response = self.client.post("/tools/search_rulebook", json={"query": "test"})
+        response = self.client.post("/tools/search", json={"query": "test"})
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"results": []})
@@ -145,21 +146,21 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"detail": "Data ID and data_type are required for delete action"})
 
-    def test_add_rulebook(self):
+    def test_add_source(self):
         self.mock_pdf_parser.create_chunks.return_value = [
             {"id": "1", "text": "chunk 1", "page_number": 1, "section": {"title": "Title 1", "path": ["Title 1"]}},
             {"id": "2", "text": "chunk 2", "page_number": 2, "section": {"title": "Title 2", "path": ["Title 2"]}}
         ]
         self.mock_pdf_parser.extract_personality_text.return_value = "This is a test personality."
 
-        response = self.client.post("/tools/add_rulebook", json={
+        response = self.client.post("/tools/add_source", json={
             "pdf_path": "data/sample.pdf",
             "rulebook_name": "Test Rulebook",
             "system": "Test System"
         })
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "success", "message": "Rulebook 'Test Rulebook' added successfully."})
+        self.assertEqual(response.json(), {"status": "success", "message": "Source 'Test Rulebook' added successfully."})
         self.mock_redis_manager.store_rulebook_content.assert_called_once()
         self.mock_redis_manager.store_rulebook_personality.assert_called_once_with("Test Rulebook", "This is a test personality.")
 
@@ -212,6 +213,88 @@ class TestMCPServer(BaseMCPServerTest):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("npc", response.json())
+
+    def test_manage_session_start(self):
+        self.mock_redis_manager.redis_client.exists.return_value = False
+        response = self.client.post("/tools/manage_session", json={
+            "action": "start",
+            "campaign_id": "test_campaign",
+            "session_id": "test_session"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success", "message": "Session started."})
+
+    def test_manage_session_add_note(self):
+        self.mock_redis_manager.redis_client.exists.return_value = True
+        self.mock_redis_manager.redis_client.hgetall.return_value = {"notes": "[]"}
+        response = self.client.post("/tools/manage_session", json={
+            "action": "add_note",
+            "campaign_id": "test_campaign",
+            "session_id": "test_session",
+            "data": {"note": "Test note"}
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success"})
+
+    def test_manage_session_set_initiative(self):
+        self.mock_redis_manager.redis_client.exists.return_value = True
+        self.mock_redis_manager.redis_client.hgetall.return_value = {"initiative_order": "[]"}
+        response = self.client.post("/tools/manage_session", json={
+            "action": "set_initiative",
+            "campaign_id": "test_campaign",
+            "session_id": "test_session",
+            "data": {"order": [{"name": "Player 1", "initiative": 20}]}
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success"})
+
+    def test_manage_session_add_monster(self):
+        self.mock_redis_manager.redis_client.exists.return_value = True
+        self.mock_redis_manager.redis_client.hgetall.return_value = {"monsters": "[]"}
+        response = self.client.post("/tools/manage_session", json={
+            "action": "add_monster",
+            "campaign_id": "test_campaign",
+            "session_id": "test_session",
+            "data": {"monster": {"name": "Goblin", "max_hp": 10, "current_hp": 10}}
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success"})
+
+    def test_manage_session_update_monster_hp(self):
+        self.mock_redis_manager.redis_client.exists.return_value = True
+        self.mock_redis_manager.redis_client.hgetall.return_value = {"monsters": json.dumps([{"name": "Goblin", "max_hp": 10, "current_hp": 10}])}
+        response = self.client.post("/tools/manage_session", json={
+            "action": "update_monster_hp",
+            "campaign_id": "test_campaign",
+            "session_id": "test_session",
+            "data": {"name": "Goblin", "hp": 5}
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success"})
+
+    def test_manage_session_get(self):
+        self.mock_redis_manager.redis_client.exists.return_value = True
+        self.mock_redis_manager.redis_client.hgetall.return_value = {
+            "notes": "[\"Test note\"]",
+            "initiative_order": "[{\"name\": \"Player 1\", \"initiative\": 20}]",
+            "monsters": "[{\"name\": \"Goblin\", \"max_hp\": 10, \"current_hp\": 5}]"
+        }
+        response = self.client.post("/tools/manage_session", json={
+            "action": "get",
+            "campaign_id": "test_campaign",
+            "session_id": "test_session"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("notes", response.json())
+
+    def test_generate_map(self):
+        response = self.client.post("/tools/generate_map", json={
+            "rulebook_name": "Test Rulebook",
+            "map_description": "A simple room"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("map", response.json())
+        self.assertIn("<svg", response.json()["map"])
 
 
 if __name__ == '__main__':

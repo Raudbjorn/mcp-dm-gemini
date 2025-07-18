@@ -49,15 +49,6 @@ class PDFParser:
         """Use table of contents to identify logical sections"""
         return self._identify_sections_recursive(toc, [])
 
-
-    def extract_tables(self, pdf_path: str) -> List[Any]:
-        """Extract tabular data with structure preservation"""
-        reader = PdfReader(pdf_path)
-        tables = []
-        for page in reader.pages:
-            tables.extend(page.extract_tables())
-        return tables
-
     def create_chunks(self, pdf_path: str, chunk_size: int = 1000, overlap: int = 200) -> List[Dict[str, Any]]:
         """Create searchable chunks with metadata"""
         reader = PdfReader(pdf_path)

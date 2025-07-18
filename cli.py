@@ -162,6 +162,17 @@ def interactive_npc_creation(args):
             print("\nError saving NPC.")
             print(save_response.text)
 
+def manage_session(args):
+    """Manage a game session"""
+    payload = {
+        "action": args.action,
+        "campaign_id": args.campaign_id,
+        "session_id": args.session_id,
+        "data": json.loads(args.data) if args.data else None
+    }
+    response = requests.post("http://localhost:8000/tools/manage_session", json=payload)
+    print(json.dumps(response.json(), indent=2))
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -278,6 +289,22 @@ def main():
     gen_npc_interactive_parser.add_argument("rulebook_name", help="The name of the rulebook to use for NPC creation")
     gen_npc_interactive_parser.add_argument("campaign_id", help="The ID of the campaign to save the NPC to")
     gen_npc_interactive_parser.set_defaults(func=interactive_npc_creation)
+
+    # Session command
+    session_parser = subparsers.add_parser(
+        "session",
+        help="Manage a game session",
+        description="Manage initiative, monster health, and session notes.",
+        epilog="""Examples:
+  python cli.py session start "my-campaign" "session-1"
+  python cli.py session add_note "my-campaign" "session-1" --data '{"note": "The players entered the tavern."}'
+"""
+    )
+    session_parser.add_argument("action", choices=["start", "add_note", "set_initiative", "add_monster", "update_monster_hp", "get"], help="The action to perform")
+    session_parser.add_argument("campaign_id", help="The ID of the campaign")
+    session_parser.add_argument("session_id", help="The ID of the session")
+    session_parser.add_argument("--data", help="The data for the action (in JSON format)")
+    session_parser.set_defaults(func=manage_session)
 
 
     args = parser.parse_args()

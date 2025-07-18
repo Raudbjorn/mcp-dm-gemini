@@ -16,6 +16,7 @@ graph TB
     C --> E[Vector Embedding Service]
     C --> F[Redis Database]
     C --> G[Campaign Manager]
+    C --> M[Map Generator]
     
     D --> H[Raw PDF Files]
     E --> I[Sentence Transformers]
@@ -34,10 +35,13 @@ graph TB
 
 The system follows a modular design with clear separation of concerns:
 
-1. **MCP Server Layer**: Handles protocol communication and request routing
-2. **Service Layer**: Business logic for search, parsing, and campaign management
-3. **Data Layer**: Redis-based storage with vector and traditional data capabilities
-4. **Processing Layer**: PDF parsing and embedding generation
+1.  **MCP Server Layer**: Handles protocol communication and request routing
+2.  **Service Layer**: Business logic for search, parsing, and campaign management
+3.  **Data Layer**: Redis-based storage with vector and traditional data capabilities
+4.  **Processing Layer**: PDF parsing and embedding generation
+5.  **Web UI Layer**: A user-friendly web interface for interacting with the system.
+6.  **CLI Layer**: A command-line interface for interacting with the system.
+7.  **Map Generation Layer**: Generates simple SVG maps for combat encounters.
 
 ## Components and Interfaces
 
@@ -49,14 +53,15 @@ The MCP server exposes the following tools to LLMs:
 # Tool definitions for MCP protocol
 TOOLS = [
     {
-        "name": "search_rulebook",
-        "description": "Search TTRPG rulebooks for rules, spells, monsters, etc.",
+        "name": "search",
+        "description": "Search TTRPG source material for rules, lore, etc.",
         "inputSchema": {
             "type": "object",
             "properties": {
                 "query": {"type": "string", "description": "Search query"},
-                "rulebook": {"type": "string", "description": "Optional specific rulebook"},
-                "content_type": {"type": "string", "enum": ["rule", "spell", "monster", "item", "any"]},
+                "rulebook": {"type": "string", "description": "Optional specific source"},
+                "source_type": {"type": "string", "enum": ["rulebook", "flavor"]},
+                "content_type": {"type": "string", "enum": ["rule", "spell", "monster", "item", "text", "any"]},
                 "max_results": {"type": "integer", "default": 5}
             }
         }
@@ -67,7 +72,7 @@ TOOLS = [
         "inputSchema": {
             "type": "object", 
             "properties": {
-                "action": {"type": "string", "enum": ["create", "read", "update", "delete", "list"]},
+                "action": {"type": "string", "enum": ["create", "read", "update", "delete", "list", "export", "import"]},
                 "campaign_id": {"type": "string"},
                 "data_type": {"type": "string", "enum": ["character", "npc", "location", "plot", "session"]},
                 "data": {"type": "object", "description": "Campaign data payload"}
@@ -75,14 +80,87 @@ TOOLS = [
         }
     },
     {
-        "name": "add_rulebook",
-        "description": "Process and add a new PDF rulebook to the system",
+        "name": "add_source",
+        "description": "Process and add a new PDF source to the system",
         "inputSchema": {
             "type": "object",
             "properties": {
                 "pdf_path": {"type": "string", "description": "Path to PDF file"},
-                "rulebook_name": {"type": "string", "description": "Display name for the rulebook"},
-                "system": {"type": "string", "description": "Game system (D&D 5e, Pathfinder, etc.)"}
+                "rulebook_name": {"type": "string", "description": "Display name for the source"},
+                "system": {"type": "string", "description": "Game system (D&D 5e, Pathfinder, etc.)"},
+                "source_type": {"type": "string", "enum": ["rulebook", "flavor"]}
+            }
+        }
+    },
+    {
+        "name": "get_rulebook_personality",
+        "description": "Get the personality for a rulebook",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"}
+            }
+        }
+    },
+    {
+        "name": "get_character_creation_rules",
+        "description": "Get the character creation rules for a rulebook",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"}
+            }
+        }
+    },
+    {
+        "name": "generate_backstory",
+        "description": "Generate a backstory for a character",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"},
+                "character_details": {"type": "object", "description": "The character's details"},
+                "player_params": {"type": "string", "description": "Any additional parameters from the player"},
+                "flavor_sources": {"type": "array", "items": {"type": "string"}}
+            }
+        }
+    },
+    {
+        "name": "generate_npc",
+        "description": "Generate an NPC",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"},
+                "player_level": {"type": "integer", "description": "The average level of the player characters"},
+                "npc_description": {"type": "string", "description": "A brief description of the NPC"},
+                "flavor_sources": {"type": "array", "items": {"type": "string"}}
+            }
+        }
+    },
+    {
+        "name": "manage_session",
+        "description": "Manage a game session",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["start", "add_note", "set_initiative", "add_monster", "update_monster_hp", "get"]},
+                "campaign_id": {"type": "string"},
+                "session_id": {"type": "string"},
+                "data": {"type": "object", "description": "The data for the action"}
+            }
+        }
+    },
+    {
+        "name": "generate_map",
+        "description": "Generate a map for a combat encounter",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"},
+                "map_description": {"type": "string", "description": "A brief description of the map"},
+                "width": {"type": "integer", "default": 20},
+                "height": {"type": "integer", "default": 20}
             }
         }
     }
@@ -99,34 +177,16 @@ class PDFParser:
         """Extract text while preserving structure"""
         pass
     
+    def extract_personality_text(self, pdf_path: str, num_pages: int = 5) -> str:
+        """Extracts text from the first few pages to determine personality."""
+        pass
+
     def identify_sections(self, text: str, toc_data: List[str]) -> List[Section]:
         """Use table of contents to identify logical sections"""
         pass
     
-    def extract_tables(self, pdf_path: str) -> List[Table]:
-        """Extract tabular data with structure preservation"""
-        pass
-    
     def create_chunks(self, sections: List[Section]) -> List[ContentChunk]:
         """Create searchable chunks with metadata"""
-        pass
-```
-
-### Vector Embedding Service
-
-```python
-class EmbeddingService:
-    """Manages text-to-vector conversion and similarity search"""
-    
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
-        self.model = SentenceTransformer(model_name)
-    
-    def generate_embedding(self, text: str) -> List[float]:
-        """Convert text to vector embedding"""
-        pass
-    
-    def batch_embed(self, texts: List[str]) -> List[List[float]]:
-        """Efficiently process multiple texts"""
         pass
 ```
 
@@ -143,6 +203,14 @@ class RedisDataManager:
     def store_rulebook_content(self, content: List[ContentChunk]) -> None:
         """Store parsed rulebook with embeddings"""
         pass
+
+    def store_rulebook_personality(self, rulebook_name: str, personality_text: str) -> None:
+        """Stores the personality text for a rulebook."""
+        pass
+
+    def get_rulebook_personality(self, rulebook_name: str) -> str:
+        """Retrieves the personality text for a rulebook."""
+        pass
     
     def vector_search(self, query_embedding: List[float], filters: Dict = None) -> List[SearchResult]:
         """Perform semantic search"""
@@ -155,6 +223,14 @@ class RedisDataManager:
     def get_campaign_data(self, campaign_id: str, data_type: str = None) -> List[Dict]:
         """Retrieve campaign information"""
         pass
+
+    def export_campaign_data(self, campaign_id: str) -> Dict[str, Any]:
+        """Export all data for a campaign"""
+        pass
+
+    def import_campaign_data(self, campaign_id: str, data: Dict[str, Any]) -> None:
+        """Import campaign data"""
+        pass
 ```
 
 ## Data Models
@@ -166,15 +242,15 @@ class RedisDataManager:
 class ContentChunk:
     id: str
     rulebook: str
-    system: str  # D&D 5e, Pathfinder, etc.
-    content_type: str  # rule, spell, monster, item
+    system: str
+    source_type: str # "rulebook" or "flavor"
+    content_type: str
     title: str
     content: str
     page_number: int
-    section_path: List[str]  # ["Chapter 1", "Combat", "Attack Rolls"]
+    section_path: List[str]
     embedding: List[float]
     metadata: Dict[str, Any]
-    tables: List[Table] = None
 ```
 
 ### Campaign Data Model
@@ -200,8 +276,29 @@ class CampaignData:
 class SearchResult:
     content_chunk: ContentChunk
     relevance_score: float
-    match_type: str  # "semantic", "keyword", "exact"
+    match_type: str
     highlighted_text: str = None
+```
+
+### Session Data Model
+
+```python
+@dataclass
+class InitiativeEntry:
+    name: str
+    initiative: int
+
+@dataclass
+class MonsterState:
+    name: str
+    max_hp: int
+    current_hp: int
+
+@dataclass
+class SessionData(CampaignData):
+    notes: List[str] = None
+    initiative_order: List[InitiativeEntry] = None
+    monsters: List[MonsterState] = None
 ```
 
 ## Error Handling
@@ -234,6 +331,7 @@ class SearchResult:
 - **Embedding Service**: Verify embedding consistency and similarity calculations
 - **Redis Operations**: Mock Redis for fast, isolated tests
 - **MCP Protocol**: Test tool registration and request/response handling
+- **Map Generator**: Test the generation of SVG maps
 
 ### Integration Testing
 
@@ -294,3 +392,5 @@ mcp:
 - **File permissions**: PDF access and temporary file handling
 - **Resource requirements**: Memory and CPU recommendations
 - **Scaling**: Horizontal scaling considerations for multiple users
+- **Containerization**: Docker and Docker Compose files are provided for easy deployment.
+- **CI/CD**: A GitHub Actions workflow is included for automated testing.

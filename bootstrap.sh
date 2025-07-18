@@ -7,6 +7,8 @@
 VENV_DIR=".venv"
 REQUIREMENTS_FILE="requirements.txt"
 MCP_SERVER_FILE="mcp_server.py"
+HOST="0.0.0.0"
+PORT="8000"
 
 # --- Helper Functions ---
 print_info() {
@@ -35,9 +37,9 @@ fi
 source "$VENV_DIR/bin/activate"
 print_info "Virtual environment activated."
 
-# 2. Install Dependencies
+# 2. Install/Update Dependencies
 if [ -f "$REQUIREMENTS_FILE" ]; then
-    print_info "Installing dependencies from '$REQUIREMENTS_FILE'..."
+    print_info "Installing/updating dependencies from '$REQUIREMENTS_FILE'..."
     pip install -r "$REQUIREMENTS_FILE"
     if [ $? -ne 0 ]; then
         print_error "Failed to install dependencies. Please check '$REQUIREMENTS_FILE'."
@@ -56,7 +58,7 @@ fi
 
 # Check if Redis is running
 if ! redis-cli ping &> /dev/null; then
-    print_info "Redis is not running. Starting Redis server..."
+    print_info "Redis is not running. Starting Redis server in the background..."
     redis-server --daemonize yes
     if [ $? -ne 0 ]; then
         print_error "Failed to start Redis server."
@@ -67,13 +69,14 @@ else
     print_info "Redis is already running."
 fi
 
-# 4. Start MCP Server
+# 4. Start MCP Server and Web UI
 if [ -f "$MCP_SERVER_FILE" ]; then
-    print_info "Starting MCP Server..."
+    print_info "Starting TTRPG Assistant Server..."
+    print_info "MCP Server and Web UI will be available at http://$HOST:$PORT"
+    print_info "Access the Web UI by navigating to http://localhost:$PORT/ui in your browser."
+    print_info "Press Ctrl+C to stop the server."
     python "$MCP_SERVER_FILE"
 else
     print_error "'$MCP_SERVER_FILE' not found. Cannot start the server."
     exit 1
 fi
-
-print_info "TTRPG Assistant MCP Server is running."

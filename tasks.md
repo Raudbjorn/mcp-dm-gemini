@@ -13,13 +13,7 @@
   - Add progress tracking for large files
   - _Requirements: 3.1, 3.2, 6.1_
 
-- [x] 2.2 Implement table extraction from PDFs
-  - Create specialized table extraction functionality
-  - Preserve tabular structure in extracted content
-  - Handle complex layouts and merged cells
-  - _Requirements: 1.3, 3.3_
-
-- [x] 2.3 Implement section identification using book structure
+- [x] 2.2 Implement section identification using book structure
   - Use table of contents to identify logical sections
   - Create metadata for each section based on hierarchy
   - Generate unique IDs for each content chunk
@@ -83,8 +77,8 @@
   - Add error handling for MCP protocol
   - _Requirements: 4.1_
 
-- [x] 6.2 Implement search_rulebook tool
-  - Create handler for rulebook search requests
+- [x] 6.2 Implement search tool
+  - Create handler for search requests
   - Format search results according to MCP protocol
   - Add source attribution and page references
   - _Requirements: 1.1, 1.2, 1.4, 4.1_
@@ -95,8 +89,8 @@
   - Add validation and error handling
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [x] 6.4 Implement add_rulebook tool
-  - Create handler for adding new rulebooks
+- [x] 6.4 Implement add_source tool
+  - Create handler for adding new sources
   - Add duplicate detection and handling
   - Implement progress reporting for long operations
   - _Requirements: 3.1, 3.4_
@@ -141,7 +135,7 @@
   - _Requirements: 6.4_
 
 - [x] 9. Implement LLM Personality Configuration
-- [x] 9.1 Extract personality text during rulebook import
+- [x] 9.1 Extract personality text during source import
 - [x] 9.2 Store personality text in Redis
 - [x] 9.3 Create `get_rulebook_personality` tool
 
@@ -156,25 +150,41 @@
 - [x] 12.1 Create interactive CLI for character creation
 - [x] 12.2 Create interactive CLI for NPC creation
 
-- [ ] 13. Implement Web-Based User Interface (UI)
-- [ ] 13.1 Design and implement a simple web UI
-- [ ] 13.2 Integrate existing features into the UI
+- [x] 13. Implement Web-Based User Interface (UI)
+- [x] 13.1 Design and implement a simple web UI
+- [x] 13.2 Integrate existing features into the UI
 
-- [ ] 14. Implement Session Management Tools
-- [ ] 14.1 Create initiative tracker tool
-- [ ] 14.2 Create monster health tracker tool
-- [ ] 14.3 Create session notes tool
+- [x] 14. Implement Session Management Tools
+- [x] 14.1 Create initiative tracker tool
+- [x] 14.2 Create monster health tracker tool
+- [x] 14.3 Create session notes tool
 
-- [ ] 15. Implement Content Pack Marketplace
-- [ ] 15.1 Design and implement a marketplace for pre-processed content
-- [ ] 15.2 Create a packaging format for content packs
+- [x] 15. Implement Flavor Source Material
+- [x] 15.1 Update data models to distinguish between "rulebook" and "flavor" sources
+- [x] 15.2 Update content ingestion to handle flavor sources
+- [x] 15.3 Update content generation to use flavor sources
 
-- [ ] 16. Implement Discord Integration
-- [ ] 16.1 Create a Discord bot
-- [ ] 16.2 Integrate TTRPG Assistant features into the bot
+- [x] 16. Implement Map Generation
+- [x] 16.1 Create map generation engine
+- [x] 16.2 Create `generate_map` tool
+- [x] 16.3 Integrate map generation into CLI and Web UI
 
-- [x] 17. Finalize and release
-- [x] 17.1 Review and refine all code and documentation
-- [x] 17.2 Create release package with dependencies
-- [x] 17.3 Publish to repository with clear instructions
-- [x] 17.4 Announce availability to target users
+- [ ] 17. Implement Content Pack Marketplace
+- [ ] 17.1 Design and implement a marketplace for pre-processed content
+- [ ] 17.2 Create a packaging format for content packs
+
+- [ ] 18. Implement Discord Integration
+- [ ] 18.1 Create a Discord bot
+- [ ] 18.2 Integrate TTRPG Assistant features into the bot
+
+- [x] 19. Finalize and release
+- [x] 19.1 Review and refine all code and documentation
+- [x] 19.2 Create release package with dependencies
+- [x] 19.3 Publish to repository with clear instructions
+- [x] 19.4 Announce availability to target users
+
+- [x] 20. Ancillary Support
+- [x] 20.1 Create Dockerfile and Docker Compose file
+- [x] 20.2 Create GitHub Actions workflow for CI/CD
+- [x] 20.3 Improve and expand test suite
+- [x] 20.4 Update documentation

@@ -3,16 +3,19 @@ from pydantic import BaseModel
 from ttrpg_assistant.redis_manager.manager import RedisDataManager
 from ttrpg_assistant.embedding_service.embedding import EmbeddingService
 from ttrpg_assistant.pdf_parser.parser import PDFParser
+from ttrpg_assistant.map_generator.generator import MapGenerator
 from .dependencies import get_redis_manager, get_embedding_service, get_pdf_parser
 import numpy as np
 from typing import Dict, Any, List
-from ttrpg_assistant.data_models.models import ContentChunk
+from ttrpg_assistant.data_models.models import ContentChunk, InitiativeEntry, MonsterState, SourceType, MapGenerationInput
+import json
 
 router = APIRouter()
 
-class SearchRulebookInput(BaseModel):
+class SearchInput(BaseModel):
     query: str
     rulebook: str = None
+    source_type: SourceType = None
     content_type: str = None
     max_results: int = 5
 
@@ -23,10 +26,11 @@ class ManageCampaignInput(BaseModel):
     data_id: str = None
     data: Dict[str, Any] = None
 
-class AddRulebookInput(BaseModel):
+class AddSourceInput(BaseModel):
     pdf_path: str
     rulebook_name: str
     system: str
+    source_type: SourceType = SourceType.RULEBOOK
 
 class GetRulebookPersonalityInput(BaseModel):
     rulebook_name: str
@@ -38,16 +42,24 @@ class GenerateBackstoryInput(BaseModel):
     rulebook_name: str
     character_details: Dict[str, Any]
     player_params: str = None
+    flavor_sources: List[str] = []
 
 class GenerateNPCInput(BaseModel):
     rulebook_name: str
     player_level: int
     npc_description: str
+    flavor_sources: List[str] = []
+
+class ManageSessionInput(BaseModel):
+    action: str
+    campaign_id: str
+    session_id: str
+    data: Dict[str, Any] = None
 
 
-@router.post("/search_rulebook")
-async def search_rulebook(
-    input: SearchRulebookInput,
+@router.post("/search")
+async def search(
+    input: SearchInput,
     redis_manager: RedisDataManager = Depends(get_redis_manager),
     embedding_service: EmbeddingService = Depends(get_embedding_service)
 ):
@@ -56,6 +68,8 @@ async def search_rulebook(
     filters = []
     if input.rulebook:
         filters.append(f"@rulebook:{input.rulebook}")
+    if input.source_type:
+        filters.append(f"@source_type:{input.source_type.value}")
     if input.content_type:
         filters.append(f"@content_type:{input.content_type}")
     
@@ -113,15 +127,12 @@ async def manage_campaign(
     else:
         raise HTTPException(status_code=400, detail="Invalid action")
 
-@router.post("/add_rulebook")
-async def add_rulebook(
-    input: AddRulebookInput,
+@router.post("/add_source")
+async def add_source(
+    input: AddSourceInput,
     redis_manager: RedisDataManager = Depends(get_redis_manager),
     pdf_parser: PDFParser = Depends(get_pdf_parser)
 ):
-    # This is a simplified implementation. A real implementation would need to handle
-    # duplicate detection and progress reporting.
-    
     chunks_data = pdf_parser.create_chunks(input.pdf_path)
     
     content_chunks = [
@@ -129,7 +140,8 @@ async def add_rulebook(
             id=chunk['id'],
             rulebook=input.rulebook_name,
             system=input.system,
-            content_type="rule", # This is a simplification
+            source_type=input.source_type,
+            content_type="text",
             title=chunk['section']['title'] if chunk.get('section') else '',
             content=chunk['text'],
             page_number=chunk['page_number'],
@@ -141,11 +153,10 @@ async def add_rulebook(
     
     redis_manager.store_rulebook_content("rulebook_index", content_chunks)
 
-    # Extract and store personality
     personality_text = pdf_parser.extract_personality_text(input.pdf_path)
     redis_manager.store_rulebook_personality(input.rulebook_name, personality_text)
     
-    return {"status": "success", "message": f"Rulebook '{input.rulebook_name}' added successfully."}
+    return {"status": "success", "message": f"Source '{input.rulebook_name}' added successfully."}
 
 @router.post("/get_rulebook_personality")
 async def get_rulebook_personality(
@@ -170,7 +181,7 @@ async def get_character_creation_rules(
         index_name="rulebook_index",
         query_embedding=query_embedding,
         num_results=1,
-        filters=f"@rulebook:{input.rulebook_name}"
+        filters=f"@rulebook:{input.rulebook_name} @source_type:rulebook"
     )
     
     if not results:
@@ -183,19 +194,16 @@ async def generate_backstory(
     input: GenerateBackstoryInput,
     redis_manager: RedisDataManager = Depends(get_redis_manager)
 ):
-    personality = redis_manager.get_rulebook_personality(input.rulebook_name)
-    if not personality:
-        raise HTTPException(status_code=404, detail="Personality not found for this rulebook.")
-
-    # This is a simplified implementation. A real implementation would use a powerful
-    # generative model to create a backstory.
+    personalities = [redis_manager.get_rulebook_personality(input.rulebook_name)]
+    for source in input.flavor_sources:
+        personalities.append(redis_manager.get_rulebook_personality(source))
     
     backstory = f"This is a generated backstory for a character in {input.rulebook_name}.\n"
     backstory += f"Character details: {input.character_details}\n"
     if input.player_params:
         backstory += f"Player parameters: {input.player_params}\n"
     
-    backstory += f"\n--- Rulebook Vibe ---\n{personality}"
+    backstory += f"\n--- Vibe ---\n" + "\n".join(filter(None, personalities))
     
     return {"backstory": backstory}
 
@@ -205,11 +213,10 @@ async def generate_npc(
     redis_manager: RedisDataManager = Depends(get_redis_manager),
     embedding_service: EmbeddingService = Depends(get_embedding_service)
 ):
-    personality = redis_manager.get_rulebook_personality(input.rulebook_name)
-    if not personality:
-        raise HTTPException(status_code=404, detail="Personality not found for this rulebook.")
+    personalities = [redis_manager.get_rulebook_personality(input.rulebook_name)]
+    for source in input.flavor_sources:
+        personalities.append(redis_manager.get_rulebook_personality(source))
 
-    # Find relevant examples of NPCs or monsters
     query = "monster stat block or non-player character"
     query_embedding = np.array(embedding_service.generate_embedding(query))
     
@@ -217,11 +224,8 @@ async def generate_npc(
         index_name="rulebook_index",
         query_embedding=query_embedding,
         num_results=3,
-        filters=f"@rulebook:{input.rulebook_name}"
+        filters=f"@rulebook:{input.rulebook_name} @source_type:rulebook"
     )
-    
-    # This is a simplified implementation. A real implementation would use a powerful
-    # generative model to create an NPC.
     
     npc = f"This is a generated NPC for {input.rulebook_name}.\n"
     npc += f"Player level: {input.player_level}\n"
@@ -232,6 +236,77 @@ async def generate_npc(
         for example in examples:
             npc += f"- {example.content_chunk.title}: {example.content_chunk.content}\n"
             
-    npc += f"\n--- Rulebook Vibe ---\n{personality}"
+    npc += f"\n--- Vibe ---\n" + "\n".join(filter(None, personalities))
     
     return {"npc": npc}
+
+@router.post("/manage_session")
+async def manage_session(
+    input: ManageSessionInput,
+    redis_manager: RedisDataManager = Depends(get_redis_manager)
+):
+    session_key = f"session:{input.campaign_id}:{input.session_id}"
+
+    if input.action == "start":
+        if redis_manager.redis_client.exists(session_key):
+            raise HTTPException(status_code=400, detail="Session already exists.")
+        redis_manager.redis_client.hset(session_key, mapping={"notes": "[]", "initiative_order": "[]", "monsters": "[]"})
+        return {"status": "success", "message": "Session started."}
+
+    if not redis_manager.redis_client.exists(session_key):
+        raise HTTPException(status_code=404, detail="Session not found.")
+
+    session_data = redis_manager.redis_client.hgetall(session_key)
+    notes = json.loads(session_data.get("notes", "[]"))
+    initiative_order = json.loads(session_data.get("initiative_order", "[]"))
+    monsters = json.loads(session_data.get("monsters", "[]"))
+
+    if input.action == "add_note":
+        if not input.data or "note" not in input.data:
+            raise HTTPException(status_code=400, detail="Note data is required.")
+        notes.append(input.data['note'])
+        redis_manager.redis_client.hset(session_key, "notes", json.dumps(notes))
+        return {"status": "success"}
+
+    elif input.action == "set_initiative":
+        if not input.data or "order" not in input.data:
+            raise HTTPException(status_code=400, detail="Initiative order data is required.")
+        initiative_order = [InitiativeEntry(**e).model_dump() for e in input.data['order']]
+        redis_manager.redis_client.hset(session_key, "initiative_order", json.dumps(initiative_order))
+        return {"status": "success"}
+
+    elif input.action == "add_monster":
+        if not input.data or "monster" not in input.data:
+            raise HTTPException(status_code=400, detail="Monster data is required.")
+        monster = MonsterState(**input.data['monster'])
+        monsters.append(monster.model_dump())
+        redis_manager.redis_client.hset(session_key, "monsters", json.dumps(monsters))
+        return {"status": "success"}
+
+    elif input.action == "update_monster_hp":
+        if not input.data or "name" not in input.data or "hp" not in input.data:
+            raise HTTPException(status_code=400, detail="Monster name and hp are required.")
+        for monster in monsters:
+            if monster['name'] == input.data['name']:
+                monster['current_hp'] = input.data['hp']
+                break
+        redis_manager.redis_client.hset(session_key, "monsters", json.dumps(monsters))
+        return {"status": "success"}
+
+    elif input.action == "get":
+        return {
+            "notes": notes,
+            "initiative_order": initiative_order,
+            "monsters": monsters
+        }
+
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action")
+
+@router.post("/generate_map")
+async def generate_map(
+    input: MapGenerationInput
+):
+    map_generator = MapGenerator(input.width, input.height)
+    svg_map = map_generator.generate_map(input.map_description)
+    return {"map": svg_map}

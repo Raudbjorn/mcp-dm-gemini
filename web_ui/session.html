@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session - TTRPG Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/search">Search</a>
+        <a href="/campaign">Campaign</a>
+        <a href="/add-rulebook">Add Rulebook</a>
+        <a href="/session">Session</a>
+    </nav>
+    <h1>Session Management</h1>
+
+    <div id="session-form">
+        <h2>Manage Session</h2>
+        <form id="manage-session-form">
+            <input type="text" id="campaign-id" placeholder="Campaign ID" required>
+            <input type="text" id="session-id" placeholder="Session ID" required>
+            <select id="action" required>
+                <option value="start">Start Session</option>
+                <option value="get">Get Session Data</option>
+                <option value="add_note">Add Note</option>
+                <option value="set_initiative">Set Initiative</option>
+                <option value="add_monster">Add Monster</option>
+                <option value="update_monster_hp">Update Monster HP</option>
+            </select>
+            <textarea id="data" placeholder="Data (in JSON format)"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="session-data">
+        <h2>Session Data</h2>
+        <div id="session-results"></div>
+    </div>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>

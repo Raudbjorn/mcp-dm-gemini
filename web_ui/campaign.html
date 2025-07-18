@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign - TTRPG Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/search">Search</a>
+        <a href="/campaign">Campaign</a>
+        <a href="/add-rulebook">Add Rulebook</a>
+        <a href="/session">Session</a>
+    </nav>
+    <h1>Campaign Management</h1>
+
+    <div id="campaign-form">
+        <h2>Manage Campaign Data</h2>
+        <form id="manage-campaign-form">
+            <input type="text" id="campaign-id" placeholder="Campaign ID" required>
+            <select id="action" required>
+                <option value="create">Create</option>
+                <option value="read">Read</option>
+                <option value="update">Update</option>
+                <option value="delete">Delete</option>
+            </select>
+            <input type="text" id="data-type" placeholder="Data Type (e.g., character)">
+            <input type="text" id="data-id" placeholder="Data ID (for read, update, delete)">
+            <textarea id="data" placeholder="Data (in JSON format for create, update)"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="campaign-data">
+        <h2>Campaign Data</h2>
+        <div id="campaign-results"></div>
+    </div>
+    
+    <script src="/static/script.js"></script>
+</body>
+</html>
