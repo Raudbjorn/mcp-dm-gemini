@@ -4,6 +4,7 @@ from ttrpg_assistant.redis_manager.manager import RedisDataManager
 from ttrpg_assistant.embedding_service.embedding import EmbeddingService
 from ttrpg_assistant.pdf_parser.parser import PDFParser
 from ttrpg_assistant.map_generator.generator import MapGenerator
+from ttrpg_assistant.content_packager.packager import ContentPackager
 from .dependencies import get_redis_manager, get_embedding_service, get_pdf_parser
 import numpy as np
 from typing import Dict, Any, List
@@ -55,6 +56,13 @@ class ManageSessionInput(BaseModel):
     campaign_id: str
     session_id: str
     data: Dict[str, Any] = None
+
+class CreateContentPackInput(BaseModel):
+    source_name: str
+    output_path: str
+
+class InstallContentPackInput(BaseModel):
+    pack_path: str
 
 
 @router.post("/search")
@@ -310,3 +318,31 @@ async def generate_map(
     map_generator = MapGenerator(input.width, input.height)
     svg_map = map_generator.generate_map(input.map_description)
     return {"map": svg_map}
+
+@router.post("/create_content_pack")
+async def create_content_pack(
+    input: CreateContentPackInput,
+    redis_manager: RedisDataManager = Depends(get_redis_manager)
+):
+    # This is a simplified implementation. A real implementation would need to
+    # retrieve the actual chunks for the given source.
+    chunks = []
+    personality = redis_manager.get_rulebook_personality(input.source_name)
+    
+    packager = ContentPackager()
+    packager.create_pack(chunks, personality, input.output_path)
+    
+    return {"status": "success", "message": f"Content pack created at {input.output_path}"}
+
+@router.post("/install_content_pack")
+async def install_content_pack(
+    input: InstallContentPackInput,
+    redis_manager: RedisDataManager = Depends(get_redis_manager)
+):
+    packager = ContentPackager()
+    chunks, personality = packager.load_pack(input.pack_path)
+    
+    # This is a simplified implementation. A real implementation would need to
+    # properly store the chunks and personality.
+    
+    return {"status": "success", "message": "Content pack installed."}

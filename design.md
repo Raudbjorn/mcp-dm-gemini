@@ -17,6 +17,7 @@ graph TB
     C --> F[Redis Database]
     C --> G[Campaign Manager]
     C --> M[Map Generator]
+    C --> N[Content Packager]
     
     D --> H[Raw PDF Files]
     E --> I[Sentence Transformers]
@@ -42,6 +43,7 @@ The system follows a modular design with clear separation of concerns:
 5.  **Web UI Layer**: A user-friendly web interface for interacting with the system.
 6.  **CLI Layer**: A command-line interface for interacting with the system.
 7.  **Map Generation Layer**: Generates simple SVG maps for combat encounters.
+8.  **Content Packager Layer**: Creates and loads content packs.
 
 ## Components and Interfaces
 
@@ -161,6 +163,27 @@ TOOLS = [
                 "map_description": {"type": "string", "description": "A brief description of the map"},
                 "width": {"type": "integer", "default": 20},
                 "height": {"type": "integer", "default": 20}
+            }
+        }
+    },
+    {
+        "name": "create_content_pack",
+        "description": "Create a content pack from a source",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "source_name": {"type": "string", "description": "The name of the source to pack"},
+                "output_path": {"type": "string", "description": "The path to save the content pack"}
+            }
+        }
+    },
+    {
+        "name": "install_content_pack",
+        "description": "Install a content pack",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "pack_path": {"type": "string", "description": "The path to the content pack"}
             }
         }
     }
@@ -332,6 +355,7 @@ class SessionData(CampaignData):
 - **Redis Operations**: Mock Redis for fast, isolated tests
 - **MCP Protocol**: Test tool registration and request/response handling
 - **Map Generator**: Test the generation of SVG maps
+- **Content Packager**: Test the creation and loading of content packs
 
 ### Integration Testing
 

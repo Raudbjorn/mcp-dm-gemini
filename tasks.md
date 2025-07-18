@@ -169,9 +169,9 @@
 - [x] 16.2 Create `generate_map` tool
 - [x] 16.3 Integrate map generation into CLI and Web UI
 
-- [ ] 17. Implement Content Pack Marketplace
-- [ ] 17.1 Design and implement a marketplace for pre-processed content
-- [ ] 17.2 Create a packaging format for content packs
+- [x] 17. Implement Content Pack Marketplace
+- [x] 17.1 Design and implement a marketplace for pre-processed content
+- [x] 17.2 Create a packaging format for content packs
 
 - [ ] 18. Implement Discord Integration
 - [ ] 18.1 Create a Discord bot

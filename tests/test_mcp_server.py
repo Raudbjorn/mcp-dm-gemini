@@ -2,9 +2,10 @@ import unittest
 from fastapi.testclient import TestClient
 from ttrpg_assistant.mcp_server.server import app
 from ttrpg_assistant.mcp_server.dependencies import get_redis_manager, get_embedding_service, get_pdf_parser
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from ttrpg_assistant.data_models.models import SearchResult, ContentChunk
 import json
+import os
 
 class BaseMCPServerTest(unittest.TestCase):
     def setUp(self):
@@ -295,6 +296,26 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn("map", response.json())
         self.assertIn("<svg", response.json()["map"])
+
+    @patch('ttrpg_assistant.mcp_server.tools.ContentPackager')
+    def test_create_content_pack(self, mock_packager):
+        response = self.client.post("/tools/create_content_pack", json={
+            "source_name": "Test Source",
+            "output_path": "data/test_pack.zip"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success", "message": "Content pack created at data/test_pack.zip"})
+        mock_packager.return_value.create_pack.assert_called_once()
+
+    @patch('ttrpg_assistant.mcp_server.tools.ContentPackager')
+    def test_install_content_pack(self, mock_packager):
+        mock_packager.return_value.load_pack.return_value = ([], "")
+        response = self.client.post("/tools/install_content_pack", json={
+            "pack_path": "data/test_pack.zip"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success", "message": "Content pack installed."})
+        mock_packager.return_value.load_pack.assert_called_once()
 
 
 if __name__ == '__main__':

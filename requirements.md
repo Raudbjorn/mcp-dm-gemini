@@ -133,3 +133,12 @@ This feature creates an MCP (Model Context Protocol) tool that enables LLMs to l
 2. WHEN a user wants to generate a map THEN the system SHALL use the rulebook's "vibe" to influence the style of the map.
 3. WHEN a user wants to generate a map THEN the system SHALL allow the user to specify the dimensions of the map.
 4. WHEN a user wants to generate a map THEN the system SHALL allow the user to provide a description of the map to be generated.
+
+### Requirement 13
+
+**User Story:** As a user, I want to be able to create and share content packs, so that I can easily distribute my custom content to other users.
+
+#### Acceptance Criteria
+
+1. WHEN a user wants to create a content pack THEN the system SHALL provide a tool to package up a source's content and personality into a single file.
+2. WHEN a user wants to install a content pack THEN the system SHALL provide a tool to unpack and install the content pack.
