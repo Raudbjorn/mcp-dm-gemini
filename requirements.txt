@@ -1,0 +1,9 @@
+redis==4.3.4
+sentence-transformers
+pypdf
+pyyaml
+fastapi
+uvicorn
+pydantic
+httpx
+requests

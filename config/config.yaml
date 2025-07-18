@@ -1,0 +1,25 @@
+# config.yaml
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+  password: null
+
+embedding:
+  model: "all-MiniLM-L6-v2"
+  batch_size: 32
+  cache_embeddings: true
+
+pdf_processing:
+  max_file_size_mb: 100
+  ocr_enabled: true
+  preserve_formatting: true
+
+search:
+  default_max_results: 5
+  similarity_threshold: 0.7
+  enable_keyword_fallback: true
+
+mcp:
+  server_name: "ttrpg-assistant"
+  version: "1.0.0"
