@@ -1,21 +1,21 @@
 import discord
 from discord.ext import commands
+import httpx
 import yaml
-import requests
-import json
+from ttrpg_assistant.logger import logger
 
 # Load configuration
-with open("config/config.yaml", 'r') as f:
+with open("config/config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
-# Set up the bot
+# Set up Discord bot
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name}')
+    logger.info(f'Logged in as {bot.user.name}')
 
 @bot.command()
 async def ping(ctx):
@@ -23,25 +23,21 @@ async def ping(ctx):
 
 @bot.command()
 async def search(ctx, *, query: str):
-    """Search for rulebook content."""
-    payload = {"query": query}
-    response = requests.post("http://localhost:8000/tools/search", json=payload)
-    data = response.json()
-
-    if data.get("results"):
-        for result in data["results"]:
-            embed = discord.Embed(
-                title=result['content_chunk']['title'],
-                description=result['content_chunk']['content'],
-                color=discord.Color.blue()
-            )
-            embed.set_footer(text=f"Rulebook: {result['content_chunk']['rulebook']}, Page: {result['content_chunk']['page_number']}")
-            await ctx.send(embed=embed)
-    else:
-        await ctx.send("No results found.")
-
-def run_bot():
-    bot.run(config['discord']['token'])
+    logger.info(f"Received search command from Discord: '{query}'")
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "http://localhost:8000/tools/search",
+            json={"query": query}
+        )
+        if response.status_code == 200:
+            results = response.json()["results"]
+            if results:
+                reply = "\n\n".join([f"**{r['content_chunk']['title']}**\n{r['content_chunk']['content']}" for r in results])
+                await ctx.send(reply)
+            else:
+                await ctx.send("No results found.")
+        else:
+            await ctx.send("Error performing search.")
 
 if __name__ == "__main__":
-    run_bot()
+    bot.run(config["discord"]["token"])

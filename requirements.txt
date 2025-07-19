@@ -13,3 +13,4 @@ discord.py
 pytest
 pytest-asyncio
 pytest-discord
+fastmcp

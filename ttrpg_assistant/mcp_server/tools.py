@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from ttrpg_assistant.redis_manager.manager import RedisDataManager
 from ttrpg_assistant.embedding_service.embedding import EmbeddingService
 from ttrpg_assistant.pdf_parser.parser import PDFParser
@@ -8,62 +7,10 @@ from ttrpg_assistant.content_packager.packager import ContentPackager
 from .dependencies import get_redis_manager, get_embedding_service, get_pdf_parser
 import numpy as np
 from typing import Dict, Any, List
-from ttrpg_assistant.data_models.models import ContentChunk, InitiativeEntry, MonsterState, SourceType, MapGenerationInput
+from ttrpg_assistant.data_models.models import *
 import json
 
 router = APIRouter()
-
-class SearchInput(BaseModel):
-    query: str
-    rulebook: str = None
-    source_type: SourceType = None
-    content_type: str = None
-    max_results: int = 5
-
-class ManageCampaignInput(BaseModel):
-    action: str
-    campaign_id: str
-    data_type: str = None
-    data_id: str = None
-    data: Dict[str, Any] = None
-
-class AddSourceInput(BaseModel):
-    pdf_path: str
-    rulebook_name: str
-    system: str
-    source_type: SourceType = SourceType.RULEBOOK
-
-class GetRulebookPersonalityInput(BaseModel):
-    rulebook_name: str
-
-class GetCharacterCreationRulesInput(BaseModel):
-    rulebook_name: str
-
-class GenerateBackstoryInput(BaseModel):
-    rulebook_name: str
-    character_details: Dict[str, Any]
-    player_params: str = None
-    flavor_sources: List[str] = []
-
-class GenerateNPCInput(BaseModel):
-    rulebook_name: str
-    player_level: int
-    npc_description: str
-    flavor_sources: List[str] = []
-
-class ManageSessionInput(BaseModel):
-    action: str
-    campaign_id: str
-    session_id: str
-    data: Dict[str, Any] = None
-
-class CreateContentPackInput(BaseModel):
-    source_name: str
-    output_path: str
-
-class InstallContentPackInput(BaseModel):
-    pack_path: str
-
 
 @router.post("/search")
 async def search(
@@ -141,23 +88,11 @@ async def add_source(
     redis_manager: RedisDataManager = Depends(get_redis_manager),
     pdf_parser: PDFParser = Depends(get_pdf_parser)
 ):
-    chunks_data = pdf_parser.create_chunks(input.pdf_path)
-    
-    content_chunks = [
-        ContentChunk(
-            id=chunk['id'],
-            rulebook=input.rulebook_name,
-            system=input.system,
-            source_type=input.source_type,
-            content_type="text",
-            title=chunk['section']['title'] if chunk.get('section') else '',
-            content=chunk['text'],
-            page_number=chunk['page_number'],
-            section_path=chunk['section']['path'] if chunk.get('section') else [],
-            embedding=b"",
-            metadata={}
-        ) for chunk in chunks_data
-    ]
+    content_chunks = pdf_parser.create_chunks(input.pdf_path)
+    for chunk in content_chunks:
+        chunk.rulebook = input.rulebook_name
+        chunk.system = input.system
+        chunk.source_type = input.source_type
     
     redis_manager.store_rulebook_content("rulebook_index", content_chunks)
 

@@ -1,0 +1,135 @@
+[
+    {
+        "name": "search",
+        "description": "Search TTRPG source material for rules, lore, etc.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search query"},
+                "rulebook": {"type": "string", "description": "Optional specific source"},
+                "source_type": {"type": "string", "enum": ["rulebook", "flavor"]},
+                "content_type": {"type": "string", "enum": ["rule", "spell", "monster", "item", "text", "any"]},
+                "max_results": {"type": "integer", "default": 5}
+            }
+        }
+    },
+    {
+        "name": "manage_campaign",
+        "description": "Store, retrieve, or update campaign data",
+        "inputSchema": {
+            "type": "object", 
+            "properties": {
+                "action": {"type": "string", "enum": ["create", "read", "update", "delete", "list", "export", "import"]},
+                "campaign_id": {"type": "string"},
+                "data_type": {"type": "string", "enum": ["character", "npc", "location", "plot", "session"]},
+                "data": {"type": "object", "description": "Campaign data payload"}
+            }
+        }
+    },
+    {
+        "name": "add_source",
+        "description": "Process and add a new PDF source to the system",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "pdf_path": {"type": "string", "description": "Path to PDF file"},
+                "rulebook_name": {"type": "string", "description": "Display name for the source"},
+                "system": {"type": "string", "description": "Game system (D&D 5e, Pathfinder, etc.)"},
+                "source_type": {"type": "string", "enum": ["rulebook", "flavor"]}
+            }
+        }
+    },
+    {
+        "name": "get_rulebook_personality",
+        "description": "Get the personality for a rulebook",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"}
+            }
+        }
+    },
+    {
+        "name": "get_character_creation_rules",
+        "description": "Get the character creation rules for a rulebook",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"}
+            }
+        }
+    },
+    {
+        "name": "generate_backstory",
+        "description": "Generate a backstory for a character",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"},
+                "character_details": {"type": "object", "description": "The character's details"},
+                "player_params": {"type": "string", "description": "Any additional parameters from the player"},
+                "flavor_sources": {"type": "array", "items": {"type": "string"}}
+            }
+        }
+    },
+    {
+        "name": "generate_npc",
+        "description": "Generate an NPC",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"},
+                "player_level": {"type": "integer", "description": "The average level of the player characters"},
+                "npc_description": {"type": "string", "description": "A brief description of the NPC"},
+                "flavor_sources": {"type": "array", "items": {"type": "string"}}
+            }
+        }
+    },
+    {
+        "name": "manage_session",
+        "description": "Manage a game session",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["start", "add_note", "set_initiative", "add_monster", "update_monster_hp", "get"]},
+                "campaign_id": {"type": "string"},
+                "session_id": {"type": "string"},
+                "data": {"type": "object", "description": "The data for the action"}
+            }
+        }
+    },
+    {
+        "name": "generate_map",
+        "description": "Generate a map for a combat encounter",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "rulebook_name": {"type": "string", "description": "The name of the rulebook"},
+                "map_description": {"type": "string", "description": "A brief description of the map"},
+                "width": {"type": "integer", "default": 20},
+                "height": {"type": "integer", "default": 20}
+            }
+        }
+    },
+    {
+        "name": "create_content_pack",
+        "description": "Create a content pack from a source",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "source_name": {"type": "string", "description": "The name of the source to pack"},
+                "output_path": {"type": "string", "description": "The path to save the content pack"}
+            }
+        }
+    },
+    {
+        "name": "install_content_pack",
+        "description": "Install a content pack",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "pack_path": {"type": "string", "description": "The path to the content pack"}
+            }
+        }
+    }
+]

@@ -1,43 +1,25 @@
 import svgwrite
+from ttrpg_assistant.logger import logger
 
 class MapGenerator:
-    def __init__(self, width, height, grid_size=20):
+    def __init__(self, width: int, height: int):
         self.width = width
         self.height = height
-        self.grid_size = grid_size
-        self.dwg = svgwrite.Drawing(size=(width * grid_size, height * grid_size))
-        self.dwg.add(self.dwg.rect(insert=(0, 0), size=('100%', '100%'), fill='white'))
 
-    def add_grid(self):
-        for x in range(self.width + 1):
-            self.dwg.add(self.dwg.line(
-                start=(x * self.grid_size, 0),
-                end=(x * self.grid_size, self.height * self.grid_size),
-                stroke=svgwrite.rgb(200, 200, 200, '%')
-            ))
-        for y in range(self.height + 1):
-            self.dwg.add(self.dwg.line(
-                start=(0, y * self.grid_size),
-                end=(self.width * self.grid_size, y * self.grid_size),
-                stroke=svgwrite.rgb(200, 200, 200, '%')
-            ))
-
-    def generate_map(self, map_description: str):
-        # This is a very simple implementation. A real implementation would use more
-        # sophisticated logic to parse the description and generate the map.
-        self.add_grid()
+    def generate_map(self, description: str) -> str:
+        logger.info(f"Generating a {self.width}x{self.height} map with description: '{description}'")
+        dwg = svgwrite.Drawing(profile='tiny', size=(self.width * 20, self.height * 20))
         
-        # Add a simple room in the center of the map
-        room_width = self.width // 2
-        room_height = self.height // 2
-        room_x = (self.width - room_width) // 2
-        room_y = (self.height - room_height) // 2
+        # Add a grid
+        for x in range(self.width):
+            for y in range(self.height):
+                dwg.add(dwg.rect(insert=(x * 20, y * 20), size=(20, 20), fill='white', stroke='gray'))
 
-        self.dwg.add(self.dwg.rect(
-            insert=(room_x * self.grid_size, room_y * self.grid_size),
-            size=(room_width * self.grid_size, room_height * self.grid_size),
-            fill='lightgrey',
-            stroke='black'
-        ))
-
-        return self.dwg.tostring()
+        # This is a very basic implementation. A real implementation would use NLP
+        # to parse the description and draw features on the map.
+        if "cave" in description:
+            dwg.add(dwg.circle(center=(100, 100), r=50, fill='gray'))
+        elif "tavern" in description:
+            dwg.add(dwg.rect(insert=(50, 50), size=(100, 100), fill='brown'))
+        
+        return dwg.tostring()

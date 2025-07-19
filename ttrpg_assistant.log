@@ -1,0 +1,348 @@
+2025-07-19 05:06:43,951 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:06:44,444 - TTRPG_Assistant - INFO - Creating content pack at 'data/test_pack.zip'
+2025-07-19 05:06:44,485 - TTRPG_Assistant - INFO - Received search command from Discord: 'test'
+2025-07-19 05:06:54,601 - TTRPG_Assistant - INFO - Received search command from Discord: 'test'
+2025-07-19 05:06:54,640 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 05:07:11,007 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 05:07:13,188 - TTRPG_Assistant - INFO - Generating embedding for text of length 24
+2025-07-19 05:07:13,476 - TTRPG_Assistant - INFO - Searching for 'test' with filters: rulebook=None, source_type=None, content_type=None
+2025-07-19 05:07:13,476 - TTRPG_Assistant - INFO - Found 1 results.
+2025-07-19 05:07:13,478 - TTRPG_Assistant - INFO - Adding source 'Test Book' from 'dummy.pdf'
+2025-07-19 05:07:13,479 - TTRPG_Assistant - INFO - Source 'Test Book' added successfully.
+2025-07-19 05:07:13,481 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 05:07:13,481 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 05:07:13,498 - TTRPG_Assistant - INFO - Getting personality for 'test book'
+2025-07-19 05:07:13,500 - TTRPG_Assistant - INFO - Getting character creation rules for 'test book'
+2025-07-19 05:07:13,502 - TTRPG_Assistant - INFO - Generating backstory for a character in 'test book'
+2025-07-19 05:07:13,505 - TTRPG_Assistant - INFO - Generating NPC for 'test book' at level 1
+2025-07-19 05:07:13,507 - TTRPG_Assistant - INFO - Managing session 'test session' in campaign 'test campaign' with action 'start'
+2025-07-19 05:07:13,516 - TTRPG_Assistant - INFO - Creating content pack for 'test source' at 'test.pack'
+2025-07-19 05:07:13,518 - TTRPG_Assistant - INFO - Installing content pack from 'test.pack'
+2025-07-19 05:07:13,532 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A simple room'
+2025-07-19 05:07:13,641 - TTRPG_Assistant - INFO - Extracting personality text from 'data/sample.pdf'
+2025-07-19 05:07:13,647 - TTRPG_Assistant - INFO - Extracting text from 'data/sample.pdf'
+2025-07-19 05:07:13,651 - TTRPG_Assistant - INFO - Extracting table of contents from 'data/sample.pdf'
+2025-07-19 05:07:13,655 - TTRPG_Assistant - ERROR - Error connecting to Redis: 
+2025-07-19 05:07:13,667 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,721 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,721 - TTRPG_Assistant - INFO - Deleted data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 05:07:13,723 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,724 - TTRPG_Assistant - INFO - Retrieved 0 data entries for campaign 'test_campaign' of type 'character'.
+2025-07-19 05:07:13,735 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,735 - TTRPG_Assistant - INFO - Retrieved personality for 'test_rulebook'.
+2025-07-19 05:07:13,785 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,797 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,807 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,830 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,830 - TTRPG_Assistant - INFO - Stored 2 content chunks in 'test_index'.
+2025-07-19 05:07:13,841 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,842 - TTRPG_Assistant - INFO - Stored personality for 'test_rulebook'.
+2025-07-19 05:07:13,893 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:07:13,894 - TTRPG_Assistant - INFO - Updated data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 05:07:13,896 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:24,751 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:25,318 - TTRPG_Assistant - INFO - Creating content pack at 'data/test_pack.zip'
+2025-07-19 05:09:25,356 - TTRPG_Assistant - INFO - Received search command from Discord: 'test'
+2025-07-19 05:09:25,686 - TTRPG_Assistant - INFO - Received search command from Discord: 'test'
+2025-07-19 05:09:25,719 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 05:09:42,379 - TTRPG_Assistant - INFO - Generating embeddings for 2 texts.
+2025-07-19 05:09:42,670 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 05:09:44,857 - TTRPG_Assistant - INFO - Generating embedding for text of length 24
+2025-07-19 05:09:44,871 - TTRPG_Assistant - INFO - Searching for 'test' with filters: rulebook=None, source_type=None, content_type=None
+2025-07-19 05:09:44,871 - TTRPG_Assistant - INFO - Found 1 results.
+2025-07-19 05:09:44,874 - TTRPG_Assistant - INFO - Adding source 'Test Book' from 'dummy.pdf'
+2025-07-19 05:09:44,874 - TTRPG_Assistant - INFO - Source 'Test Book' added successfully.
+2025-07-19 05:09:44,876 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 05:09:44,876 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 05:09:44,893 - TTRPG_Assistant - INFO - Getting personality for 'test book'
+2025-07-19 05:09:44,895 - TTRPG_Assistant - INFO - Getting character creation rules for 'test book'
+2025-07-19 05:09:44,897 - TTRPG_Assistant - INFO - Generating backstory for a character in 'test book'
+2025-07-19 05:09:44,899 - TTRPG_Assistant - INFO - Generating NPC for 'test book' at level 1
+2025-07-19 05:09:44,901 - TTRPG_Assistant - INFO - Managing session 'test session' in campaign 'test campaign' with action 'start'
+2025-07-19 05:09:44,904 - TTRPG_Assistant - INFO - Creating content pack for 'test source' at 'test.pack'
+2025-07-19 05:09:44,906 - TTRPG_Assistant - INFO - Installing content pack from 'test.pack'
+2025-07-19 05:09:44,919 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A simple room'
+2025-07-19 05:09:45,037 - TTRPG_Assistant - INFO - Extracting personality text from 'data/sample.pdf'
+2025-07-19 05:09:45,042 - TTRPG_Assistant - INFO - Extracting text from 'data/sample.pdf'
+2025-07-19 05:09:45,046 - TTRPG_Assistant - INFO - Extracting table of contents from 'data/sample.pdf'
+2025-07-19 05:09:45,050 - TTRPG_Assistant - ERROR - Error connecting to Redis: 
+2025-07-19 05:09:45,051 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:45,053 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:45,053 - TTRPG_Assistant - INFO - Index 'test_index' already exists.
+2025-07-19 05:09:45,056 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:45,056 - TTRPG_Assistant - INFO - Created index 'test_index'.
+2025-07-19 05:09:45,058 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:45,058 - TTRPG_Assistant - INFO - Deleted data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 05:09:45,060 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:45,061 - TTRPG_Assistant - INFO - Retrieved 1 data entries for campaign 'test_campaign' of type 'character'.
+2025-07-19 05:09:45,063 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:45,063 - TTRPG_Assistant - INFO - Retrieved personality for 'test_rulebook'.
+2025-07-19 05:09:45,065 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:53,297 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:53,298 - TTRPG_Assistant - INFO - Stored 2 content chunks in 'test_index'.
+2025-07-19 05:09:53,300 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:53,300 - TTRPG_Assistant - INFO - Stored personality for 'test_rulebook'.
+2025-07-19 05:09:53,302 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:53,302 - TTRPG_Assistant - INFO - Updated data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 05:09:53,304 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:09:53,305 - TTRPG_Assistant - INFO - Performed vector search on 'test_index' and found 1 results.
+2025-07-19 05:12:36,720 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:37,279 - TTRPG_Assistant - INFO - Creating content pack at 'data/test_pack.zip'
+2025-07-19 05:12:37,281 - TTRPG_Assistant - INFO - Content pack created successfully.
+2025-07-19 05:12:37,281 - TTRPG_Assistant - INFO - Loading content pack from 'data/test_pack.zip'
+2025-07-19 05:12:37,288 - TTRPG_Assistant - INFO - Content pack loaded successfully.
+2025-07-19 05:12:37,306 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 05:12:53,342 - TTRPG_Assistant - INFO - Generating embeddings for 2 texts.
+2025-07-19 05:12:53,626 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 05:12:55,167 - TTRPG_Assistant - INFO - Generating embedding for text of length 24
+2025-07-19 05:12:55,182 - TTRPG_Assistant - INFO - Searching for 'test' with filters: rulebook=None, source_type=None, content_type=None
+2025-07-19 05:12:55,182 - TTRPG_Assistant - INFO - Found 1 results.
+2025-07-19 05:12:55,185 - TTRPG_Assistant - INFO - Adding source 'Test Book' from 'dummy.pdf'
+2025-07-19 05:12:55,185 - TTRPG_Assistant - INFO - Source 'Test Book' added successfully.
+2025-07-19 05:12:55,187 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 05:12:55,187 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 05:12:55,211 - TTRPG_Assistant - INFO - Getting personality for 'test book'
+2025-07-19 05:12:55,213 - TTRPG_Assistant - INFO - Getting character creation rules for 'test book'
+2025-07-19 05:12:55,215 - TTRPG_Assistant - INFO - Generating backstory for a character in 'test book'
+2025-07-19 05:12:55,217 - TTRPG_Assistant - INFO - Generating NPC for 'test book' at level 1
+2025-07-19 05:12:55,219 - TTRPG_Assistant - INFO - Managing session 'test session' in campaign 'test campaign' with action 'start'
+2025-07-19 05:12:55,221 - TTRPG_Assistant - INFO - Creating content pack for 'test source' at 'test.pack'
+2025-07-19 05:12:55,223 - TTRPG_Assistant - INFO - Installing content pack from 'test.pack'
+2025-07-19 05:12:55,259 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A simple room'
+2025-07-19 05:12:55,369 - TTRPG_Assistant - INFO - Extracting personality text from 'data/sample.pdf'
+2025-07-19 05:12:55,374 - TTRPG_Assistant - INFO - Extracting text from 'data/sample.pdf'
+2025-07-19 05:12:55,378 - TTRPG_Assistant - INFO - Extracting table of contents from 'data/sample.pdf'
+2025-07-19 05:12:55,381 - TTRPG_Assistant - ERROR - Error connecting to Redis: 
+2025-07-19 05:12:55,383 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,385 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,386 - TTRPG_Assistant - INFO - Index 'test_index' already exists.
+2025-07-19 05:12:55,388 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,388 - TTRPG_Assistant - INFO - Created index 'test_index'.
+2025-07-19 05:12:55,390 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,391 - TTRPG_Assistant - INFO - Deleted data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 05:12:55,392 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,393 - TTRPG_Assistant - INFO - Retrieved 1 data entries for campaign 'test_campaign' of type 'character'.
+2025-07-19 05:12:55,395 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,395 - TTRPG_Assistant - INFO - Retrieved personality for 'test_rulebook'.
+2025-07-19 05:12:55,397 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,398 - TTRPG_Assistant - INFO - Stored data for campaign 'test_campaign' of type 'character' with id '5c719df5-f703-4f39-bc8b-1be989f8d7e2'.
+2025-07-19 05:12:55,400 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,401 - TTRPG_Assistant - INFO - Stored 2 content chunks in 'test_index'.
+2025-07-19 05:12:55,403 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,403 - TTRPG_Assistant - INFO - Stored personality for 'test_rulebook'.
+2025-07-19 05:12:55,405 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,405 - TTRPG_Assistant - INFO - Updated data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 05:12:55,407 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 05:12:55,407 - TTRPG_Assistant - INFO - Performed vector search on 'test_index' and found 1 results.
+2025-07-19 06:41:07,699 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:08,256 - TTRPG_Assistant - INFO - Creating content pack at 'data/test_pack.zip'
+2025-07-19 06:41:08,258 - TTRPG_Assistant - INFO - Content pack created successfully.
+2025-07-19 06:41:08,258 - TTRPG_Assistant - INFO - Loading content pack from 'data/test_pack.zip'
+2025-07-19 06:41:08,260 - TTRPG_Assistant - INFO - Content pack loaded successfully.
+2025-07-19 06:41:08,271 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 06:41:24,963 - TTRPG_Assistant - INFO - Generating embeddings for 2 texts.
+2025-07-19 06:41:25,343 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 06:41:27,482 - TTRPG_Assistant - INFO - Generating embedding for text of length 24
+2025-07-19 06:41:27,509 - TTRPG_Assistant - INFO - Searching for 'test' with filters: rulebook=None, source_type=None, content_type=None
+2025-07-19 06:41:27,510 - TTRPG_Assistant - INFO - Found 1 results.
+2025-07-19 06:41:27,512 - TTRPG_Assistant - INFO - Adding source 'Test Book' from 'dummy.pdf'
+2025-07-19 06:41:35,792 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 06:41:35,792 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 06:41:35,821 - TTRPG_Assistant - INFO - Getting personality for 'test book'
+2025-07-19 06:41:35,823 - TTRPG_Assistant - INFO - Getting character creation rules for 'test book'
+2025-07-19 06:41:35,825 - TTRPG_Assistant - INFO - Generating backstory for a character in 'test book'
+2025-07-19 06:41:35,827 - TTRPG_Assistant - INFO - Generating NPC for 'test book' at level 1
+2025-07-19 06:41:35,829 - TTRPG_Assistant - INFO - Managing session 'test session' in campaign 'test campaign' with action 'start'
+2025-07-19 06:41:35,832 - TTRPG_Assistant - INFO - Creating content pack for 'test source' at 'test.pack'
+2025-07-19 06:41:35,834 - TTRPG_Assistant - INFO - Installing content pack from 'test.pack'
+2025-07-19 06:41:35,884 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A simple room'
+2025-07-19 06:41:35,994 - TTRPG_Assistant - INFO - Extracting personality text from 'data/sample.pdf'
+2025-07-19 06:41:36,000 - TTRPG_Assistant - INFO - Extracting text from 'data/sample.pdf'
+2025-07-19 06:41:36,005 - TTRPG_Assistant - INFO - Extracting table of contents from 'data/sample.pdf'
+2025-07-19 06:41:36,008 - TTRPG_Assistant - ERROR - Error connecting to Redis: 
+2025-07-19 06:41:36,010 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,012 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,013 - TTRPG_Assistant - INFO - Index 'test_index' already exists.
+2025-07-19 06:41:36,015 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,015 - TTRPG_Assistant - INFO - Created index 'test_index'.
+2025-07-19 06:41:36,018 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,018 - TTRPG_Assistant - INFO - Deleted data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 06:41:36,020 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,020 - TTRPG_Assistant - INFO - Retrieved 1 data entries for campaign 'test_campaign' of type 'character'.
+2025-07-19 06:41:36,022 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,023 - TTRPG_Assistant - INFO - Retrieved personality for 'test_rulebook'.
+2025-07-19 06:41:36,024 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,025 - TTRPG_Assistant - INFO - Stored data for campaign 'test_campaign' of type 'character' with id '550b5830-0e43-4714-a42f-63f8054b579d'.
+2025-07-19 06:41:36,027 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,027 - TTRPG_Assistant - INFO - Stored 2 content chunks in 'test_index'.
+2025-07-19 06:41:36,029 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,029 - TTRPG_Assistant - INFO - Stored personality for 'test_rulebook'.
+2025-07-19 06:41:36,031 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,032 - TTRPG_Assistant - INFO - Updated data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 06:41:36,033 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:41:36,034 - TTRPG_Assistant - INFO - Performed vector search on 'test_index' and found 1 results.
+2025-07-19 06:43:46,615 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:43:47,166 - TTRPG_Assistant - INFO - Creating content pack at 'data/test_pack.zip'
+2025-07-19 06:43:47,168 - TTRPG_Assistant - INFO - Content pack created successfully.
+2025-07-19 06:43:47,168 - TTRPG_Assistant - INFO - Loading content pack from 'data/test_pack.zip'
+2025-07-19 06:43:47,170 - TTRPG_Assistant - INFO - Content pack loaded successfully.
+2025-07-19 06:43:47,181 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 06:44:03,388 - TTRPG_Assistant - INFO - Generating embeddings for 2 texts.
+2025-07-19 06:44:03,691 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 06:44:05,779 - TTRPG_Assistant - INFO - Generating embedding for text of length 24
+2025-07-19 06:44:05,794 - TTRPG_Assistant - INFO - Searching for 'test' with filters: rulebook=None, source_type=None, content_type=None
+2025-07-19 06:44:05,794 - TTRPG_Assistant - INFO - Found 1 results.
+2025-07-19 06:44:05,797 - TTRPG_Assistant - INFO - Adding source 'Test Book' from 'dummy.pdf'
+2025-07-19 06:44:13,912 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 06:44:13,912 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 06:44:13,936 - TTRPG_Assistant - INFO - Getting personality for 'test book'
+2025-07-19 06:44:13,938 - TTRPG_Assistant - INFO - Getting character creation rules for 'test book'
+2025-07-19 06:44:13,940 - TTRPG_Assistant - INFO - Generating backstory for a character in 'test book'
+2025-07-19 06:44:13,942 - TTRPG_Assistant - INFO - Generating NPC for 'test book' at level 1
+2025-07-19 06:44:13,944 - TTRPG_Assistant - INFO - Managing session 'test session' in campaign 'test campaign' with action 'start'
+2025-07-19 06:44:13,946 - TTRPG_Assistant - INFO - Creating content pack for 'test source' at 'test.pack'
+2025-07-19 06:44:13,949 - TTRPG_Assistant - INFO - Installing content pack from 'test.pack'
+2025-07-19 06:44:13,992 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A simple room'
+2025-07-19 06:44:14,105 - TTRPG_Assistant - INFO - Extracting personality text from 'data/sample.pdf'
+2025-07-19 06:44:14,110 - TTRPG_Assistant - INFO - Extracting text from 'data/sample.pdf'
+2025-07-19 06:44:14,114 - TTRPG_Assistant - INFO - Extracting table of contents from 'data/sample.pdf'
+2025-07-19 06:44:14,118 - TTRPG_Assistant - ERROR - Error connecting to Redis: 
+2025-07-19 06:44:14,119 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,121 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,122 - TTRPG_Assistant - INFO - Index 'test_index' already exists.
+2025-07-19 06:44:14,124 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,124 - TTRPG_Assistant - INFO - Created index 'test_index'.
+2025-07-19 06:44:14,126 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,126 - TTRPG_Assistant - INFO - Deleted data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 06:44:14,128 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,129 - TTRPG_Assistant - INFO - Retrieved 1 data entries for campaign 'test_campaign' of type 'character'.
+2025-07-19 06:44:14,131 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,131 - TTRPG_Assistant - INFO - Retrieved personality for 'test_rulebook'.
+2025-07-19 06:44:14,133 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,133 - TTRPG_Assistant - INFO - Stored data for campaign 'test_campaign' of type 'character' with id 'f3576970-a651-42f2-97d6-fb0d99cdc421'.
+2025-07-19 06:44:14,135 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,136 - TTRPG_Assistant - INFO - Stored 2 content chunks in 'test_index'.
+2025-07-19 06:44:14,138 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,138 - TTRPG_Assistant - INFO - Stored personality for 'test_rulebook'.
+2025-07-19 06:44:14,140 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,141 - TTRPG_Assistant - INFO - Updated data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 06:44:14,142 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:44:14,143 - TTRPG_Assistant - INFO - Performed vector search on 'test_index' and found 1 results.
+2025-07-19 06:46:28,538 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:29,088 - TTRPG_Assistant - INFO - Creating content pack at 'data/test_pack.zip'
+2025-07-19 06:46:29,090 - TTRPG_Assistant - INFO - Content pack created successfully.
+2025-07-19 06:46:29,090 - TTRPG_Assistant - INFO - Loading content pack from 'data/test_pack.zip'
+2025-07-19 06:46:29,092 - TTRPG_Assistant - INFO - Content pack loaded successfully.
+2025-07-19 06:46:29,103 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 06:46:45,460 - TTRPG_Assistant - INFO - Generating embeddings for 2 texts.
+2025-07-19 06:46:45,830 - TTRPG_Assistant - INFO - Initializing EmbeddingService with model 'all-MiniLM-L6-v2'
+2025-07-19 06:46:47,758 - TTRPG_Assistant - INFO - Generating embedding for text of length 24
+2025-07-19 06:46:47,773 - TTRPG_Assistant - INFO - Searching for 'test' with filters: rulebook=None, source_type=None, content_type=None
+2025-07-19 06:46:47,773 - TTRPG_Assistant - INFO - Found 1 results.
+2025-07-19 06:46:47,776 - TTRPG_Assistant - INFO - Adding source 'Test Book' from 'dummy.pdf'
+2025-07-19 06:46:47,776 - TTRPG_Assistant - INFO - Source 'Test Book' added successfully.
+2025-07-19 06:46:47,778 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 06:46:47,778 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A test map'
+2025-07-19 06:46:47,803 - TTRPG_Assistant - INFO - Getting personality for 'test book'
+2025-07-19 06:46:47,805 - TTRPG_Assistant - INFO - Getting character creation rules for 'test book'
+2025-07-19 06:46:47,806 - TTRPG_Assistant - INFO - Generating backstory for a character in 'test book'
+2025-07-19 06:46:47,809 - TTRPG_Assistant - INFO - Generating NPC for 'test book' at level 1
+2025-07-19 06:46:47,810 - TTRPG_Assistant - INFO - Managing session 'test session' in campaign 'test campaign' with action 'start'
+2025-07-19 06:46:47,813 - TTRPG_Assistant - INFO - Creating content pack for 'test source' at 'test.pack'
+2025-07-19 06:46:47,815 - TTRPG_Assistant - INFO - Installing content pack from 'test.pack'
+2025-07-19 06:46:47,859 - TTRPG_Assistant - INFO - Generating a 20x20 map with description: 'A simple room'
+2025-07-19 06:46:47,968 - TTRPG_Assistant - INFO - Extracting personality text from 'data/sample.pdf'
+2025-07-19 06:46:47,974 - TTRPG_Assistant - INFO - Extracting text from 'data/sample.pdf'
+2025-07-19 06:46:47,978 - TTRPG_Assistant - INFO - Extracting table of contents from 'data/sample.pdf'
+2025-07-19 06:46:47,982 - TTRPG_Assistant - ERROR - Error connecting to Redis: 
+2025-07-19 06:46:47,984 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:47,986 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:47,986 - TTRPG_Assistant - INFO - Index 'test_index' already exists.
+2025-07-19 06:46:47,988 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:47,989 - TTRPG_Assistant - INFO - Created index 'test_index'.
+2025-07-19 06:46:47,991 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:47,991 - TTRPG_Assistant - INFO - Deleted data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 06:46:47,993 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:47,994 - TTRPG_Assistant - INFO - Retrieved 1 data entries for campaign 'test_campaign' of type 'character'.
+2025-07-19 06:46:47,996 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:47,996 - TTRPG_Assistant - INFO - Retrieved personality for 'test_rulebook'.
+2025-07-19 06:46:47,998 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:47,998 - TTRPG_Assistant - INFO - Stored data for campaign 'test_campaign' of type 'character' with id 'b294a682-1376-4f75-987d-895cdb688568'.
+2025-07-19 06:46:48,000 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:48,001 - TTRPG_Assistant - INFO - Stored 2 content chunks in 'test_index'.
+2025-07-19 06:46:48,003 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:48,003 - TTRPG_Assistant - INFO - Stored personality for 'test_rulebook'.
+2025-07-19 06:46:48,005 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:48,005 - TTRPG_Assistant - INFO - Updated data for campaign 'test_campaign' of type 'character' with id '1234'.
+2025-07-19 06:46:48,007 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 06:46:48,008 - TTRPG_Assistant - INFO - Performed vector search on 'test_index' and found 1 results.
+2025-07-19 17:23:21,225 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:23:21,239 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:23:21,241 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:23:21,242 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:23:21,315 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:23:21,392 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:23:21,441 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:23:34,903 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:25:49,445 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:25:49,459 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:26:32,868 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:26:32,882 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:26:32,884 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:26:32,885 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:26:32,956 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:26:33,034 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:26:33,084 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:26:46,624 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:29:12,853 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:29:12,867 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:29:12,870 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:29:12,870 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:29:12,942 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:29:13,022 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:29:13,070 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:29:26,457 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:31:16,473 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:31:16,488 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:31:16,490 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:31:16,491 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:31:16,562 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:31:16,640 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:31:16,689 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:31:30,060 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:32:44,640 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:32:44,654 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:32:44,656 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:32:44,657 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:32:44,729 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:32:44,806 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:32:44,853 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:32:58,222 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:34:29,328 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:34:29,343 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:34:29,345 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:34:29,346 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:34:29,420 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:34:29,498 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:34:29,546 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:34:42,947 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:36:28,364 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:36:28,378 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:36:28,380 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:36:28,381 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:36:28,451 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:36:28,529 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:36:28,577 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:36:42,191 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:39:07,335 - TTRPG_Assistant - INFO - Successfully connected to Redis.
+2025-07-19 17:39:07,350 - TTRPG_Assistant - INFO - Starting TTRPG Assistant MCP Server
+2025-07-19 17:39:07,352 - TTRPG_Assistant - INFO - Adding source 'Blades in the Dark' from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:39:07,353 - TTRPG_Assistant - INFO - Creating chunks for 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:39:07,423 - TTRPG_Assistant - INFO - Extracting table of contents from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:39:07,502 - TTRPG_Assistant - INFO - Identifying sections from table of contents.
+2025-07-19 17:39:07,550 - TTRPG_Assistant - INFO - Found 172 sections.
+2025-07-19 17:39:20,896 - TTRPG_Assistant - INFO - Created 1143 chunks.
+2025-07-19 17:39:20,937 - TTRPG_Assistant - INFO - Stored 1143 content chunks in 'rulebook_index'.
+2025-07-19 17:39:20,938 - TTRPG_Assistant - INFO - Extracting personality text from 'C:\Users\W15\Downloads\blades-in-the-dark-v81.pdf'
+2025-07-19 17:39:21,158 - TTRPG_Assistant - INFO - Stored personality for 'Blades in the Dark'.
+2025-07-19 17:39:21,159 - TTRPG_Assistant - INFO - Source 'Blades in the Dark' added successfully.

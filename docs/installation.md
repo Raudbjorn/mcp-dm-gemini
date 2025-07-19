@@ -1,79 +1,58 @@
 # Installation Guide
 
-This guide will walk you through the process of installing the TTRPG Assistant on your computer.
+This guide will walk you through setting up the TTRPG Assistant on your local machine.
 
-## Option 1: Running with Docker (Recommended)
+## Prerequisites
 
-The easiest way to run the TTRPG Assistant is with Docker. If you don't have Docker installed, you can download it from the official website:
+Before you begin, you will need to install a few things:
 
-[https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+1.  **Python**: This project requires Python 3.10 or newer. You can download it from the [official Python website](https://www.python.org/downloads/). When installing, make sure to check the box that says "Add Python to PATH".
 
-Once Docker is installed, you can run the TTRPG Assistant with a single command:
+2.  **Git**: You'll need Git to download the project files. You can get it from the [Git website](https://git-scm.com/downloads).
 
-```bash
-docker-compose up
-```
-
-This will build the necessary containers and start the application. You can then access the web interface at [http://localhost:8000/ui](http://localhost:8000/ui).
-
-## Option 2: Manual Installation
-
-### Step 1: Install Python
-
-The TTRPG Assistant is written in Python. If you don't already have Python installed, you can download it from the official website:
-
-[https://www.python.org/downloads/](https://www.python.org/downloads/)
-
-Download and run the installer for your operating system. During installation, make sure to check the box that says "Add Python to PATH".
-
-### Step 2: Install Redis
-
-The TTRPG Assistant uses a database called Redis to store its data.
-
-#### Windows
-
-The easiest way to install Redis on Windows is to use the [Memurai](https://www.memurai.com/
-) installer. Download and run the installer, and it will set up Redis to run as a service on your computer.
-
-#### macOS
-
-The easiest way to install Redis on macOS is to use [Homebrew](https://brew.sh/). If you don't have Homebrew installed, open the Terminal app and run the following command:
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-Once Homebrew is installed, you can install Redis by running the following command in the Terminal:
-
-```bash
-brew install redis
-```
-
-#### Linux
-
-You can install Redis using the package manager for your Linux distribution.
-
-**For Debian/Ubuntu:**
-```bash
-sudo apt-get update
-sudo apt-get install redis-server
-```
-
-**For Fedora/CentOS:**
-```bash
-sudo dnf install redis
-```
-
-### Step 3: Download and Run the TTRPG Assistant
-
-1.  **Download the TTRPG Assistant:** You can download the latest version of the TTRPG Assistant from the [releases page](https://github.com/your-username/ttrpg-assistant/releases) on GitHub. Download the `ttrpg-assistant.zip` file and extract it to a folder on your computer.
-
-2.  **Run the bootstrap script:**
-    *   **On Windows:** Double-click the `bootstrap.bat` file.
-    *   **On macOS and Linux:** Open the Terminal, navigate to the folder where you extracted the TTRPG Assistant, and run the following command:
-        ```bash
-        chmod +x bootstrap.sh
-        ./bootstrap.sh
+3.  **Redis**: The assistant uses Redis to store data. The easiest way to get Redis running is with Docker.
+    *   Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+    *   Once Docker is running, open a terminal (like PowerShell or Command Prompt) and run the following command to start a Redis container:
+        ```sh
+        docker run -d -p 6379:6379 --name ttrpg-redis redis/redis-stack:latest
         ```
 
-The bootstrap script will set up the TTRPG Assistant and start the server. You can then access the web interface at [http://localhost:8000/ui](http://localhost:8000/ui).
+## Installation Steps
+
+1.  **Open a Terminal**: You can use PowerShell or Command Prompt on Windows.
+
+2.  **Clone the Repository**: Use `git` to download the project code.
+    ```sh
+    git clone https://github.com/Raudbjorn/mcp-dm-gemini.git
+    ```
+
+3.  **Navigate to the Project Directory**:
+    ```sh
+    cd mcp-dm-gemini
+    ```
+
+4.  **Install Dependencies**: This project uses `uv` to manage its dependencies. The `bootstrap.sh` script can set this up for you.
+    ```sh
+    ./bootstrap.sh
+    ```
+    This will install `uv` and then use it to install all the required Python packages.
+
+## Running the Assistant
+
+Once everything is installed, you can start the TTRPG Assistant.
+
+1.  **Run the main script**:
+    ```sh
+    uv run main.py
+    ```
+
+2.  The assistant is now running and ready to be used with a compatible tool, like the Claude.ai desktop app. See the [Configuration](configuration.md) guide for details on how to connect it.
+
+## Stopping the Assistant
+
+To stop the assistant, press `Ctrl+C` in the terminal where it is running.
+
+To stop the Redis container, run this command in your terminal:
+```sh
+docker stop ttrpg-redis
+```

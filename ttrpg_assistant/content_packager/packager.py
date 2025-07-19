@@ -1,27 +1,37 @@
-from typing import List, Tuple
-import zipfile
 import json
+from typing import List, Tuple
 from ttrpg_assistant.data_models.models import ContentChunk
+from ttrpg_assistant.logger import logger
+import numpy as np
 
 class ContentPackager:
     def create_pack(self, chunks: List[ContentChunk], personality: str, output_path: str):
-        with zipfile.ZipFile(output_path, 'w') as zf:
-            # Serialize and write chunks
-            chunks_data = [chunk.model_dump_json() for chunk in chunks]
-            zf.writestr('chunks.json', json.dumps(chunks_data))
+        logger.info(f"Creating content pack at '{output_path}'")
+        
+        # Convert bytes to list for JSON serialization
+        for chunk in chunks:
+            if isinstance(chunk.embedding, bytes):
+                chunk.embedding = np.frombuffer(chunk.embedding, dtype=np.float32).tolist()
 
-            # Write personality
-            zf.writestr('personality.txt', personality)
+        pack_data = {
+            "chunks": [chunk.model_dump() for chunk in chunks],
+            "personality": personality
+        }
+        with open(output_path, "w") as f:
+            json.dump(pack_data, f)
+        logger.info("Content pack created successfully.")
 
     def load_pack(self, pack_path: str) -> Tuple[List[ContentChunk], str]:
-        with zipfile.ZipFile(pack_path, 'r') as zf:
-            # Load and deserialize chunks
-            with zf.open('chunks.json') as chunks_file:
-                chunks_data = json.load(chunks_file)
-                chunks = [ContentChunk.model_validate_json(chunk_json) for chunk_json in chunks_data]
+        logger.info(f"Loading content pack from '{pack_path}'")
+        with open(pack_path, "r") as f:
+            pack_data = json.load(f)
+        
+        chunks_data = pack_data["chunks"]
+        for chunk_data in chunks_data:
+            if 'embedding' in chunk_data and isinstance(chunk_data['embedding'], list):
+                chunk_data['embedding'] = np.array(chunk_data['embedding'], dtype=np.float32).tobytes()
 
-            # Load personality
-            with zf.open('personality.txt') as personality_file:
-                personality = personality_file.read().decode('utf-8')
-
-            return chunks, personality
+        chunks = [ContentChunk(**chunk_data) for chunk_data in chunks_data]
+        personality = pack_data["personality"]
+        logger.info("Content pack loaded successfully.")
+        return chunks, personality

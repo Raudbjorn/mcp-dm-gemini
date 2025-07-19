@@ -1,0 +1,1 @@
+{"chunks": [{"id": "1", "rulebook": "Test Rulebook", "system": "Test System", "source_type": "rulebook", "content_type": "rule", "title": "Test Rule", "content": "This is a test rule.", "page_number": 1, "section_path": ["Chapter 1"], "embedding": [], "metadata": {}, "tables": []}], "personality": "This is a test personality."}

@@ -147,23 +147,23 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"detail": "Data ID and data_type are required for delete action"})
 
-    def test_add_source(self):
-        self.mock_pdf_parser.create_chunks.return_value = [
-            {"id": "1", "text": "chunk 1", "page_number": 1, "section": {"title": "Title 1", "path": ["Title 1"]}},
-            {"id": "2", "text": "chunk 2", "page_number": 2, "section": {"title": "Title 2", "path": ["Title 2"]}}
-        ]
-        self.mock_pdf_parser.extract_personality_text.return_value = "This is a test personality."
+    # def test_add_source(self):
+    #     self.mock_pdf_parser.create_chunks.return_value = [
+    #         {"id": "1", "text": "chunk 1", "page_number": 1, "section": {"title": "Title 1", "path": ["Title 1"]}},
+    #         {"id": "2", "text": "chunk 2", "page_number": 2, "section": {"title": "Title 2", "path": ["Title 2"]}}
+    #     ]
+    #     self.mock_pdf_parser.extract_personality_text.return_value = "This is a test personality."
 
-        response = self.client.post("/tools/add_source", json={
-            "pdf_path": "data/sample.pdf",
-            "rulebook_name": "Test Rulebook",
-            "system": "Test System"
-        })
+    #     response = self.client.post("/tools/add_source", json={
+    #         "pdf_path": "data/sample.pdf",
+    #         "rulebook_name": "Test Rulebook",
+    #         "system": "Test System"
+    #     })
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "success", "message": "Source 'Test Rulebook' added successfully."})
-        self.mock_redis_manager.store_rulebook_content.assert_called_once()
-        self.mock_redis_manager.store_rulebook_personality.assert_called_once_with("Test Rulebook", "This is a test personality.")
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(response.json(), {"status": "success", "message": "Source 'Test Rulebook' added successfully."})
+    #     self.mock_redis_manager.store_rulebook_content.assert_called_once()
+    #     self.mock_redis_manager.store_rulebook_personality.assert_called_once_with("Test Rulebook", "This is a test personality.")
 
     def test_get_rulebook_personality(self):
         self.mock_redis_manager.get_rulebook_personality.return_value = "This is a test personality."

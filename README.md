@@ -37,6 +37,25 @@ This will build the necessary containers and start the application. You can then
 
 For more detailed installation instructions, please refer to the [Installation Guide](docs/installation.md).
 
+## For Claude Desktop Users
+
+To use the TTRPG Assistant with the Claude Desktop application, you will need to configure it to use the `main.py` script.
+
+1.  Open the Claude Desktop settings.
+2.  Navigate to the "Model Context Protocol" section.
+3.  Add a new MCP configuration with the following details:
+    ```json
+    {
+      "mcpServers": {
+        "ttrpg-assistant": {
+          "command": "python",
+          "args": ["/path/to/your/project/main.py"]
+        }
+      }
+    }
+    ```
+    Replace `/path/to/your/project/main.py` with the actual path to the `main.py` file on your system.
+
 ## Troubleshooting
 
 **Connection refused error when running the CLI:**
@@ -44,3 +63,32 @@ This usually means that the MCP server is not running. Make sure you have starte
 
 **Redis connection error:**
 This means that the Redis server is not running or not accessible. If you are running the application with Docker, this should not be an issue. If you are running the application manually, make sure you have installed Redis and that it is running on the default port (6379). You can check if Redis is running by executing `redis-cli ping`. If it returns `PONG`, then Redis is running.
+
+---
+
+# TTRPG Assistant
+
+The TTRPG Assistant is a tool designed to help Game Masters (GMs) run their tabletop role-playing games more smoothly. It uses the Model-Context-Protocol (MCP) to provide a set of tools that can be used by AI models like Claude.
+
+## Features
+
+*   **Rulebook Search**: Quickly search for rules, lore, and other information from your TTRPG sourcebooks.
+*   **PDF Integration**: Add new rulebooks and source material by simply providing a PDF file.
+*   **Character and NPC Generation**: Generate character backstories and non-player characters (NPCs) with personalities based on your source material.
+*   **Session Management**: Keep track of session notes, initiative order, and monster stats.
+*   **Map Generation**: Create maps for combat encounters based on a description.
+*   **Content Packs**: Package your source material into distributable content packs.
+
+## Getting Started
+
+For instructions on how to install and run the TTRPG Assistant, please see the [Installation Guide](./docs/installation.md).
+
+To learn how to configure the assistant for use with tools like the Claude.ai desktop app, refer to the [Configuration Guide](./docs/configuration.md).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue.
+
+## License
+
+This project is licensed under the MIT License.
