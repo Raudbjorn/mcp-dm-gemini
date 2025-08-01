@@ -1,7 +1,7 @@
 import unittest
 from fastapi.testclient import TestClient
 from ttrpg_assistant.mcp_server.server import app
-from ttrpg_assistant.mcp_server.dependencies import get_redis_manager, get_embedding_service, get_pdf_parser
+from ttrpg_assistant.mcp_server.dependencies import get_chroma_manager, get_embedding_service, get_pdf_parser
 from unittest.mock import MagicMock, patch
 from ttrpg_assistant.data_models.models import SearchResult, ContentChunk
 import json
@@ -10,11 +10,11 @@ import os
 class BaseMCPServerTest(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
-        self.mock_redis_manager = MagicMock()
+        self.mock_chroma_manager = MagicMock()
         self.mock_embedding_service = MagicMock()
         self.mock_pdf_parser = MagicMock()
 
-        app.dependency_overrides[get_redis_manager] = lambda: self.mock_redis_manager
+        app.dependency_overrides[get_chroma_manager] = lambda: self.mock_chroma_manager
         app.dependency_overrides[get_embedding_service] = lambda: self.mock_embedding_service
         app.dependency_overrides[get_pdf_parser] = lambda: self.mock_pdf_parser
 
@@ -34,15 +34,25 @@ class TestMCPServer(BaseMCPServerTest):
 
     def test_search(self):
         self.mock_embedding_service.generate_embedding.return_value = [0.1] * 384
-        self.mock_redis_manager.vector_search.return_value = []
+        self.mock_chroma_manager.vector_search.return_value = []
+        
+        # Mock ChromaDB client for enhanced search
+        self.mock_chroma_manager.client.get_collection.return_value.get.return_value = {
+            'documents': [],
+            'metadatas': [],
+            'ids': []
+        }
 
         response = self.client.post("/tools/search", json={"query": "test"})
         
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"results": []})
+        response_data = response.json()
+        self.assertEqual(response_data["results"], [])
+        self.assertIn("suggestions", response_data)
+        self.assertIn("search_stats", response_data)
 
     def test_manage_campaign_create(self):
-        self.mock_redis_manager.store_campaign_data.return_value = "1234"
+        self.mock_chroma_manager.store_campaign_data.return_value = "1234"
 
         response = self.client.post("/tools/manage_campaign", json={
             "action": "create",
@@ -54,7 +64,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success", "data_id": "1234"})
 
     def test_manage_campaign_read(self):
-        self.mock_redis_manager.get_campaign_data.return_value = [{"name": "Test Character"}]
+        self.mock_chroma_manager.get_campaign_data.return_value = [{"name": "Test Character"}]
 
         response = self.client.post("/tools/manage_campaign", json={
             "action": "read",
@@ -65,7 +75,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"results": [{"name": "Test Character"}]})
 
     def test_manage_campaign_update(self):
-        self.mock_redis_manager.update_campaign_data.return_value = True
+        self.mock_chroma_manager.update_campaign_data.return_value = True
 
         response = self.client.post("/tools/manage_campaign", json={
             "action": "update",
@@ -78,7 +88,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success"})
 
     def test_manage_campaign_delete(self):
-        self.mock_redis_manager.delete_campaign_data.return_value = True
+        self.mock_chroma_manager.delete_campaign_data.return_value = True
 
         response = self.client.post("/tools/manage_campaign", json={
             "action": "delete",
@@ -90,7 +100,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success"})
 
     def test_manage_campaign_export(self):
-        self.mock_redis_manager.export_campaign_data.return_value = {"character": [{"name": "Test Character"}]}
+        self.mock_chroma_manager.export_campaign_data.return_value = {"character": [{"name": "Test Character"}]}
 
         response = self.client.post("/tools/manage_campaign", json={
             "action": "export",
@@ -107,7 +117,7 @@ class TestMCPServer(BaseMCPServerTest):
         })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "success"})
-        self.mock_redis_manager.import_campaign_data.assert_called_once()
+        self.mock_chroma_manager.import_campaign_data.assert_called_once()
 
 
     def test_manage_campaign_invalid_action(self):
@@ -147,26 +157,26 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"detail": "Data ID and data_type are required for delete action"})
 
-    # def test_add_source(self):
-    #     self.mock_pdf_parser.create_chunks.return_value = [
-    #         {"id": "1", "text": "chunk 1", "page_number": 1, "section": {"title": "Title 1", "path": ["Title 1"]}},
-    #         {"id": "2", "text": "chunk 2", "page_number": 2, "section": {"title": "Title 2", "path": ["Title 2"]}}
-    #     ]
-    #     self.mock_pdf_parser.extract_personality_text.return_value = "This is a test personality."
+    def test_add_source(self):
+        self.mock_pdf_parser.create_chunks.return_value = [
+            {"id": "1", "text": "chunk 1", "page_number": 1, "section": {"title": "Title 1", "path": ["Title 1"]}},
+            {"id": "2", "text": "chunk 2", "page_number": 2, "section": {"title": "Title 2", "path": ["Title 2"]}}
+        ]
+        self.mock_pdf_parser.extract_personality_text.return_value = "This is a test personality."
 
-    #     response = self.client.post("/tools/add_source", json={
-    #         "pdf_path": "data/sample.pdf",
-    #         "rulebook_name": "Test Rulebook",
-    #         "system": "Test System"
-    #     })
+        response = self.client.post("/tools/add_source", json={
+            "pdf_path": "data/sample.pdf",
+            "rulebook_name": "Test Rulebook",
+            "system": "Test System"
+        })
 
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(response.json(), {"status": "success", "message": "Source 'Test Rulebook' added successfully."})
-    #     self.mock_redis_manager.store_rulebook_content.assert_called_once()
-    #     self.mock_redis_manager.store_rulebook_personality.assert_called_once_with("Test Rulebook", "This is a test personality.")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "success", "message": "Source 'Test Rulebook' added successfully."})
+        self.mock_chroma_manager.store_rulebook_content.assert_called_once()
+        self.mock_chroma_manager.store_rulebook_personality.assert_called_once_with("Test Rulebook", "This is a test personality.")
 
     def test_get_rulebook_personality(self):
-        self.mock_redis_manager.get_rulebook_personality.return_value = "This is a test personality."
+        self.mock_chroma_manager.get_rulebook_personality.return_value = "This is a test personality."
 
         response = self.client.post("/tools/get_rulebook_personality", json={"rulebook_name": "Test Rulebook"})
 
@@ -174,7 +184,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"personality": "This is a test personality."})
 
     def test_get_rulebook_personality_not_found(self):
-        self.mock_redis_manager.get_rulebook_personality.return_value = None
+        self.mock_chroma_manager.get_rulebook_personality.return_value = None
 
         response = self.client.post("/tools/get_rulebook_personality", json={"rulebook_name": "Test Rulebook"})
 
@@ -184,7 +194,7 @@ class TestMCPServer(BaseMCPServerTest):
     def test_get_character_creation_rules(self):
         mock_chunk = ContentChunk(id="1", rulebook="test", system="test", content_type="rule", title="Character Creation", content="These are the rules.", page_number=1, section_path=["Chapter 1"], embedding=b"", metadata={})
         mock_result = SearchResult(content_chunk=mock_chunk, relevance_score=0.9, match_type="semantic")
-        self.mock_redis_manager.vector_search.return_value = [mock_result]
+        self.mock_chroma_manager.vector_search.return_value = [mock_result]
 
         response = self.client.post("/tools/get_character_creation_rules", json={"rulebook_name": "Test Rulebook"})
 
@@ -192,7 +202,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"rules": "These are the rules."})
 
     def test_generate_backstory(self):
-        self.mock_redis_manager.get_rulebook_personality.return_value = "This is a test personality."
+        self.mock_chroma_manager.get_rulebook_personality.return_value = "This is a test personality."
 
         response = self.client.post("/tools/generate_backstory", json={
             "rulebook_name": "Test Rulebook",
@@ -203,8 +213,8 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertIn("backstory", response.json())
 
     def test_generate_npc(self):
-        self.mock_redis_manager.get_rulebook_personality.return_value = "This is a test personality."
-        self.mock_redis_manager.vector_search.return_value = []
+        self.mock_chroma_manager.get_rulebook_personality.return_value = "This is a test personality."
+        self.mock_chroma_manager.vector_search.return_value = []
 
         response = self.client.post("/tools/generate_npc", json={
             "rulebook_name": "Test Rulebook",
@@ -216,7 +226,8 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertIn("npc", response.json())
 
     def test_manage_session_start(self):
-        self.mock_redis_manager.redis_client.exists.return_value = False
+        self.mock_chroma_manager.session_exists.return_value = False
+        self.mock_chroma_manager.store_session_data.return_value = True
         response = self.client.post("/tools/manage_session", json={
             "action": "start",
             "campaign_id": "test_campaign",
@@ -226,8 +237,8 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success", "message": "Session started."})
 
     def test_manage_session_add_note(self):
-        self.mock_redis_manager.redis_client.exists.return_value = True
-        self.mock_redis_manager.redis_client.hgetall.return_value = {"notes": "[]"}
+        self.mock_chroma_manager.get_session_data.return_value = {"notes": [], "initiative_order": [], "monsters": []}
+        self.mock_chroma_manager.update_session_data.return_value = True
         response = self.client.post("/tools/manage_session", json={
             "action": "add_note",
             "campaign_id": "test_campaign",
@@ -238,8 +249,8 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success"})
 
     def test_manage_session_set_initiative(self):
-        self.mock_redis_manager.redis_client.exists.return_value = True
-        self.mock_redis_manager.redis_client.hgetall.return_value = {"initiative_order": "[]"}
+        self.mock_chroma_manager.get_session_data.return_value = {"notes": [], "initiative_order": [], "monsters": []}
+        self.mock_chroma_manager.update_session_data.return_value = True
         response = self.client.post("/tools/manage_session", json={
             "action": "set_initiative",
             "campaign_id": "test_campaign",
@@ -250,8 +261,8 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success"})
 
     def test_manage_session_add_monster(self):
-        self.mock_redis_manager.redis_client.exists.return_value = True
-        self.mock_redis_manager.redis_client.hgetall.return_value = {"monsters": "[]"}
+        self.mock_chroma_manager.get_session_data.return_value = {"notes": [], "initiative_order": [], "monsters": []}
+        self.mock_chroma_manager.update_session_data.return_value = True
         response = self.client.post("/tools/manage_session", json={
             "action": "add_monster",
             "campaign_id": "test_campaign",
@@ -262,8 +273,13 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success"})
 
     def test_manage_session_update_monster_hp(self):
-        self.mock_redis_manager.redis_client.exists.return_value = True
-        self.mock_redis_manager.redis_client.hgetall.return_value = {"monsters": json.dumps([{"name": "Goblin", "max_hp": 10, "current_hp": 10}])}
+        self.mock_chroma_manager.get_session_data.return_value = {"notes": [], "initiative_order": [], "monsters": []}
+        self.mock_chroma_manager.update_session_data.return_value = True
+        self.mock_chroma_manager.get_session_data.return_value = {
+            "notes": [], 
+            "initiative_order": [], 
+            "monsters": [{"name": "Goblin", "max_hp": 10, "current_hp": 10}]
+        }
         response = self.client.post("/tools/manage_session", json={
             "action": "update_monster_hp",
             "campaign_id": "test_campaign",
@@ -274,8 +290,9 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"status": "success"})
 
     def test_manage_session_get(self):
-        self.mock_redis_manager.redis_client.exists.return_value = True
-        self.mock_redis_manager.redis_client.hgetall.return_value = {
+        self.mock_chroma_manager.get_session_data.return_value = {"notes": [], "initiative_order": [], "monsters": []}
+        self.mock_chroma_manager.update_session_data.return_value = True
+        self.mock_chroma_manager.redis_client.hgetall.return_value = {
             "notes": "[\"Test note\"]",
             "initiative_order": "[{\"name\": \"Player 1\", \"initiative\": 20}]",
             "monsters": "[{\"name\": \"Goblin\", \"max_hp\": 10, \"current_hp\": 5}]"

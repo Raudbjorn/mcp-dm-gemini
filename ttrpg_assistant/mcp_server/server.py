@@ -1,11 +1,15 @@
 from fastapi import FastAPI, Depends
-import yaml
 from .tools import router as tools_router
-from .dependencies import get_redis_manager, get_embedding_service
+from .dependencies import get_chroma_manager, get_embedding_service
+from ..config_utils import load_config_safe
 
 # Load configuration
-with open("config/config.yaml", 'r') as f:
-    config = yaml.safe_load(f)
+config = load_config_safe("config.yaml", {
+    'mcp': {
+        'server_name': 'TTRPG Assistant MCP Server',
+        'version': '1.0.0'
+    }
+})
 
 # Create FastAPI app
 app = FastAPI(

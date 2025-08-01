@@ -1,46 +1,186 @@
-# Requirements
+# Requirements Document
 
-This document outlines the functional and non-functional requirements for the TTRPG Assistant.
+## Introduction
 
-## 1. Functional Requirements
+This feature creates an MCP (Model Context Protocol) tool that enables LLMs to look up information from TTRPG rulebooks and manage campaign data. The system will parse PDF rulebooks into searchable text, create vector embeddings for semantic search, and store both rulebook content and campaign data in Redis. This creates a comprehensive "side-car" assistant for Dungeon Masters and Game Runners that can quickly retrieve relevant rules, spells, monsters, and campaign information during gameplay.
 
-### 1.1. Core Features
-- The system must allow users to add TTRPG source material from PDF files.
-- The system must provide a semantic search capability to query the added source material.
-- The system must be able to generate character backstories and NPCs based on the source material.
-- The system must provide tools for managing a game session, including notes and combat tracking.
-- The system must be able to generate simple maps for combat encounters.
-- The system must allow for the creation and installation of content packs.
+## Requirements
 
-### 1.2. Integration
-- The system must expose its tools via the Model-Context-Protocol (MCP).
-- The system must be configurable to work with MCP-compatible clients, such as the Claude.ai desktop application.
+### Requirement 1
 
-## 2. Non-Functional Requirements
+**User Story:** As a Dungeon Master, I want to quickly look up rules, spells, and monster stats from my TTRPG rulebooks during gameplay, so that I can maintain game flow without manually searching through physical or digital books.
 
-### 2.1. Performance
-- Search queries should return results in a timely manner (e.g., under 2 seconds).
-- PDF processing time will vary depending on the size of the document but should be reasonable for typical TTRPG rulebooks.
+#### Acceptance Criteria
 
-### 2.2. Usability
-- The project must include clear documentation for installation, configuration, and usage.
-- The installation process should be straightforward for users with varying technical skill levels.
+1. WHEN a user queries for a specific rule or game element THEN the system SHALL return relevant information from the parsed rulebook content with semantic similarity matching
+2. WHEN multiple relevant results exist THEN the system SHALL rank results by relevance and return the top matches with source page references
+3. IF a query matches content from multiple rulebooks THEN the system SHALL clearly identify which source each result comes from
 
-### 2.3. Reliability
-- The system should be stable and handle errors gracefully.
-- The application should have a suite of automated tests to ensure its correctness.
+### Requirement 2
 
-### 2.4. Maintainability
-- The codebase should be clean, well-documented, and easy to understand.
-- Dead or commented-out code should be removed.
+**User Story:** As a Game Runner, I want to store and retrieve campaign-specific data (characters, NPCs, locations, plot points), so that I can maintain continuity and quickly access relevant information during sessions.
 
-### 2.5. Portability
-- The application must be runnable on common operating systems (Windows, macOS, Linux).
-- The application must be containerizable using Docker for easy deployment.
+#### Acceptance Criteria
 
-## 3. Technical Requirements
+1. WHEN campaign data is stored THEN the system SHALL organize it by campaign identifier and data type (characters, NPCs, locations, etc.)
+2. WHEN querying campaign data THEN the system SHALL support both exact matches and semantic search across stored content
+3. WHEN updating campaign data THEN the system SHALL maintain version history and allow rollback to previous states
+4. IF campaign data references rulebook content THEN the system SHALL create linkages between campaign elements and relevant rules
 
-- **Programming Language**: Python (version 3.10 or newer)
-- **Database**: Redis (specifically, a version that includes the RediSearch and RedisJSON modules, like `redis/redis-stack`).
-- **Dependencies**: All Python dependencies are listed in `requirements.txt`.
-- **CI/CD**: The project must have a continuous integration pipeline set up (e.g., using GitHub Actions).
+### Requirement 3
+
+**User Story:** As a developer or advanced user, I want to easily add new source material to the system, so that I can expand the knowledge base without technical complexity.
+
+#### Acceptance Criteria
+
+1. WHEN a PDF source is provided THEN the system SHALL extract text content while preserving structure and formatting
+2. WHEN processing a source THEN the system SHALL use the book's glossary/index to create meaningful content chunks and metadata
+3. IF a source has already been processed THEN the system SHALL detect duplicates and offer options to update or skip
+4. WHEN adding a source THEN the user SHALL be able to specify whether it is a "rulebook" or "flavor" source.
+
+### Requirement 4
+
+**User Story:** As an LLM or AI assistant, I want to access TTRPG information through standardized MCP tools, so that I can provide accurate and contextual responses about game rules and campaign data.
+
+#### Acceptance Criteria
+
+1. WHEN the MCP server receives a search request THEN it SHALL return structured data including content, source, page numbers, and relevance scores
+2. WHEN multiple search types are needed THEN the system SHALL support both vector similarity search and traditional keyword search
+3. WHEN campaign context is relevant THEN the system SHALL cross-reference rulebook content with stored campaign data
+4. IF search results are ambiguous THEN the system SHALL provide clarifying context and suggest refinement options
+
+### Requirement 5
+
+**User Story:** As a user sharing the tool with my gaming group, I want the system to be accessible to non-developers, so that other players and GMs can benefit from the tool without technical setup.
+
+#### Acceptance Criteria
+
+1. WHEN the system is deployed THEN it SHALL provide clear documentation for non-technical users to access campaign data features
+2. WHEN users interact with campaign data THEN the system SHALL provide intuitive commands that don't require Redis knowledge
+3. WHEN sharing campaign data THEN the system SHALL support export/import functionality for easy distribution
+4. IF users need to configure the system THEN it SHALL provide sensible defaults and clear configuration options
+5. WHEN a user wants to run the application in a container THEN the system SHALL provide a Dockerfile and Docker Compose file.
+6. WHEN a user wants to contribute to the project THEN the system SHALL provide a CI/CD pipeline for automated testing.
+
+### Requirement 6
+
+**User Story:** As a system administrator, I want the tool to efficiently handle large rulebook collections and concurrent users, so that performance remains acceptable during active gaming sessions.
+
+#### Acceptance Criteria
+
+1. WHEN processing large PDF files THEN the system SHALL handle memory efficiently and provide progress feedback
+2. WHEN multiple users query simultaneously THEN the system SHALL maintain response times under 2 seconds for typical queries
+3. WHEN storing vector embeddings THEN the system SHALL optimize for both storage efficiency and query speed
+4. IF the Redis database grows large THEN the system SHALL provide maintenance tools for cleanup and optimization
+
+### Requirement 7
+
+**User Story:** As a user, I want the LLM to adopt a personality that is appropriate for the game system I am using, so that the interaction feels more immersive.
+
+#### Acceptance Criteria
+
+1. WHEN a source is imported THEN the system SHALL extract a "personality" from the text.
+2. WHEN a user interacts with the LLM THEN the system SHALL use the personality of the relevant source to configure the LLM's voice and style.
+
+### Requirement 8
+
+**User Story:** As a player, I want to create a character for a new campaign, so that I can start playing the game.
+
+#### Acceptance Criteria
+
+1. WHEN a user wants to create a character THEN the system SHALL provide the character creation rules from the relevant rulebook.
+2. WHEN a user wants to create a backstory for their character THEN the system SHALL generate a backstory that is consistent with the rulebook's "vibe" and any details the player provides.
+
+### Requirement 9
+
+**User Story:** As a Game Master, I want to generate NPCs for my campaign, so that I can quickly populate the world with interesting characters.
+
+#### Acceptance Criteria
+
+1. WHEN a user wants to generate an NPC THEN the system SHALL create an NPC with stats that are appropriate for the player characters' level.
+2. WHEN a user wants to generate an NPC THEN the system SHALL use the rulebook's "vibe" to create a character that is consistent with the game world.
+
+### Requirement 10
+
+**User Story:** As a Game Master, I want to manage my game sessions, so that I can keep track of initiative, monster health, and session notes.
+
+#### Acceptance Criteria
+
+1. WHEN a user wants to start a new session THEN the system SHALL create a new session with an empty initiative tracker, monster list, and notes.
+2. WHEN a user wants to add a note to the session THEN the system SHALL add the note to the session's notes.
+3. WHEN a user wants to set the initiative order THEN the system SHALL set the initiative order for the session.
+4. WHEN a user wants to add a monster to the session THEN the system SHALL add the monster to the session's monster list.
+5. WHEN a user wants to update a monster's health THEN the system SHALL update the monster's health in the session's monster list.
+6. WHEN a user wants to view the session data THEN the system SHALL display the session's notes, initiative order, and monster list.
+
+### Requirement 11
+
+**User Story:** As a user, I want to add non-rulebook source material to the system, so that I can enhance the narrative and immersive aspects of the game.
+
+#### Acceptance Criteria
+
+1. WHEN a user adds a new source THEN they SHALL be able to specify whether it is a "rulebook" or a "flavor" source.
+2. WHEN a user generates a character backstory or an NPC THEN the system SHALL use the "flavor" sources to inform the generation process.
+3. WHEN a user searches for information THEN they SHALL be able to filter the results by source type.
+
+### Requirement 12
+
+**User Story:** As a Game Master, I want to generate a map for a combat encounter, so that I can quickly create a visual aid for my players.
+
+#### Acceptance Criteria
+
+1. WHEN a user wants to generate a map THEN the system SHALL create a simple SVG map with a grid.
+2. WHEN a user wants to generate a map THEN the system SHALL use the rulebook's "vibe" to influence the style of the map.
+3. WHEN a user wants to generate a map THEN the system SHALL allow the user to specify the dimensions of the map.
+4. WHEN a user wants to generate a map THEN the system SHALL allow the user to provide a description of the map to be generated.
+
+### Requirement 13
+
+**User Story:** As a user, I want to be able to create and share content packs, so that I can easily distribute my custom content to other users.
+
+#### Acceptance Criteria
+
+1. WHEN a user wants to create a content pack THEN the system SHALL provide a tool to package up a source's content and personality into a single file.
+2. WHEN a user wants to install a content pack THEN the system SHALL provide a tool to unpack and install the content pack.
+
+### Requirement 14
+
+**User Story:** As a user, I want to be able to interact with the TTRPG Assistant through Discord, so that I can use its features in the same place where I play my games.
+
+#### Acceptance Criteria
+
+1. WHEN a user sends a command to the Discord bot THEN the bot SHALL respond with the requested information.
+2. WHEN a user searches for rulebook content THEN the bot SHALL display the results in an easy-to-read format.
+
+### Requirement 15
+
+**User Story:** As a user, I want advanced search capabilities with hybrid semantic and keyword search, so that I can find information even with imprecise queries.
+
+#### Acceptance Criteria
+
+1. WHEN a user performs a search THEN the system SHALL use both semantic similarity and keyword matching for comprehensive results
+2. WHEN a search query is ambiguous THEN the system SHALL provide query suggestions and completion
+3. WHEN a user wants to explain search results THEN the system SHALL provide detailed explanations of relevance factors
+4. WHEN a user wants search statistics THEN the system SHALL provide analytics about the search service performance
+
+### Requirement 16
+
+**User Story:** As a developer, I want the system to use ChromaDB instead of Redis for better vector search performance, so that queries are faster and more accurate.
+
+#### Acceptance Criteria
+
+1. WHEN the system stores vector embeddings THEN it SHALL use ChromaDB's native vector storage capabilities
+2. WHEN performing vector searches THEN the system SHALL leverage ChromaDB's optimized similarity search
+3. WHEN managing collections THEN the system SHALL use ChromaDB's collection management features
+4. WHEN storing campaign data THEN the system SHALL use ChromaDB's document storage for session management
+
+### Requirement 17
+
+**User Story:** As a user, I want adaptive PDF processing that learns content patterns, so that the system becomes more accurate over time.
+
+#### Acceptance Criteria
+
+1. WHEN processing PDFs THEN the system SHALL learn content type patterns and improve classification accuracy
+2. WHEN processing multiple PDFs from the same system THEN the system SHALL reuse learned patterns for better parsing
+3. WHEN adaptive learning is enabled THEN the system SHALL cache learned patterns for future use
+4. WHEN processing content THEN the system SHALL provide statistics about learned patterns

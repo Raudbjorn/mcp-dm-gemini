@@ -20,4 +20,4 @@ EXPOSE 8000
 ENV NAME TTRPG-Assistant
 
 # Run the application
-CMD ["python", "main.py"]
+CMD ["python", "mcp_server.py"]
