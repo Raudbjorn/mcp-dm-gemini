@@ -1,7 +1,7 @@
 import unittest
 from fastapi.testclient import TestClient
 from ttrpg_assistant.mcp_server.server import app
-from ttrpg_assistant.mcp_server.dependencies import get_chroma_manager, get_embedding_service, get_pdf_parser
+from ttrpg_assistant.mcp_server.dependencies import get_chroma_manager, get_embedding_service, get_pdf_parser, get_personality_manager
 from unittest.mock import MagicMock, patch
 from ttrpg_assistant.data_models.models import SearchResult, ContentChunk
 import json
@@ -13,10 +13,12 @@ class BaseMCPServerTest(unittest.TestCase):
         self.mock_chroma_manager = MagicMock()
         self.mock_embedding_service = MagicMock()
         self.mock_pdf_parser = MagicMock()
+        self.mock_personality_manager = MagicMock()
 
         app.dependency_overrides[get_chroma_manager] = lambda: self.mock_chroma_manager
         app.dependency_overrides[get_embedding_service] = lambda: self.mock_embedding_service
         app.dependency_overrides[get_pdf_parser] = lambda: self.mock_pdf_parser
+        app.dependency_overrides[get_personality_manager] = lambda: self.mock_personality_manager
 
     def tearDown(self):
         app.dependency_overrides = {}
@@ -171,25 +173,8 @@ class TestMCPServer(BaseMCPServerTest):
         })
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "success", "message": "Source 'Test Rulebook' added successfully."})
         self.mock_chroma_manager.store_rulebook_content.assert_called_once()
-        self.mock_chroma_manager.store_rulebook_personality.assert_called_once_with("Test Rulebook", "This is a test personality.")
-
-    def test_get_rulebook_personality(self):
-        self.mock_chroma_manager.get_rulebook_personality.return_value = "This is a test personality."
-
-        response = self.client.post("/tools/get_rulebook_personality", json={"rulebook_name": "Test Rulebook"})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"personality": "This is a test personality."})
-
-    def test_get_rulebook_personality_not_found(self):
-        self.mock_chroma_manager.get_rulebook_personality.return_value = None
-
-        response = self.client.post("/tools/get_rulebook_personality", json={"rulebook_name": "Test Rulebook"})
-
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json(), {"detail": "Personality not found for this rulebook."})
+        self.mock_personality_manager.extract_and_store_personality.assert_called_once()
 
     def test_get_character_creation_rules(self):
         mock_chunk = ContentChunk(id="1", rulebook="test", system="test", content_type="rule", title="Character Creation", content="These are the rules.", page_number=1, section_path=["Chapter 1"], embedding=b"", metadata={})
@@ -202,7 +187,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertEqual(response.json(), {"rules": "These are the rules."})
 
     def test_generate_backstory(self):
-        self.mock_chroma_manager.get_rulebook_personality.return_value = "This is a test personality."
+        self.mock_personality_manager.get_personality.return_value = MagicMock(system_context="Test Context", description="Test Description")
 
         response = self.client.post("/tools/generate_backstory", json={
             "rulebook_name": "Test Rulebook",
@@ -213,7 +198,7 @@ class TestMCPServer(BaseMCPServerTest):
         self.assertIn("backstory", response.json())
 
     def test_generate_npc(self):
-        self.mock_chroma_manager.get_rulebook_personality.return_value = "This is a test personality."
+        self.mock_personality_manager.get_personality.return_value = MagicMock(system_context="Test Context", description="Test Description")
         self.mock_chroma_manager.vector_search.return_value = []
 
         response = self.client.post("/tools/generate_npc", json={

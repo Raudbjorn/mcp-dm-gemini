@@ -212,3 +212,24 @@
 - [x] 24.2 Ensure feature parity between FastMCP and MCP servers
 - [x] 24.3 Add proper error handling and protocol compliance
 - [x] 24.4 Create cross-platform startup scripts
+
+- [ ] 25. Features from `mcp-dm-claude`
+- [ ] 25.1 Implement Campaign Management
+  - [ ] Create data models for campaign information
+  - [ ] Implement CRUD operations for campaign data
+  - [ ] Add versioning and history tracking
+- [ ] 25.2 Advanced Personality Features
+  - [ ] Implement feedback loop for personality updates
+  - [ ] Add personality stats and comparison tools
+  - [ ] Implement JSON import/export for personalities
+- [ ] 25.3 Comprehensive CLI
+  - [ ] Add `campaign` command for campaign management
+  - [ ] Add `personality` command for personality management
+  - [ ] Add `stats` command for viewing statistics
+- [ ] 25.4 Testing
+  - [ ] Adapt and add tests from `test_basic.py`
+
+- [ ] 26. Improve Map Generation
+- [ ] 26.1 Implement more sophisticated map generation logic
+- [ ] 26.2 Parse map description to generate more complex maps
+- [ ] 26.3 Add support for different map features (e.g., doors, walls, etc.)

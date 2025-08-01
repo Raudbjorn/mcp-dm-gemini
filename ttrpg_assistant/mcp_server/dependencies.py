@@ -6,11 +6,6 @@ from ttrpg_assistant.config_utils import load_config_safe
 from functools import lru_cache
 
 @lru_cache(maxsize=None)
-def get_redis_manager():
-    """Renamed for compatibility - returns ChromaDataManager"""
-    return ChromaDataManager()
-
-@lru_cache(maxsize=None)
 def get_chroma_manager():
     return ChromaDataManager()
 
