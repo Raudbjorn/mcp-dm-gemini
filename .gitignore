@@ -1,0 +1,152 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# ChromaDB database files
+chroma_db/
+*.sqlite3
+*.db
+
+# Pattern cache for adaptive PDF processing
+pattern_cache/
+*.pkl
+*.pickle
+*.cache
+
+# Configuration files with sensitive data
+config/config.yaml
+config/local_config.yaml
+.env.local
+.env.production
+discord_config.yaml
+
+# Logs
+*.log
+logs/
+log/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# PDF files (often large and copyrighted)
+*.pdf
+data/*.pdf
+test_data/*.pdf
+
+# Model files and embeddings cache  
+models/
+embeddings_cache/
+*.model
+*.bin
+sentence_transformers_cache/
+
+# Test coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Profiling data
+.prof
+
+# Docker
+.dockerignore
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Content packs (may contain copyrighted material)
+*.contentpack
+content_packs/
+
+# Large datasets
+datasets/
+large_data/
+
+# Personal notes and drafts
+notes.md
+draft*.md
+personal/
+private/
+
+# Development artifacts  
+dev/
+development/
+scratch/
+playground/
+
+# CI/CD artifacts
+.github/workflows/*.log
+
+# User-specific data directories
+user_data/
+my_*/
+custom_*/

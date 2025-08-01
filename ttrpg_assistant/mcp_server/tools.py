@@ -6,7 +6,8 @@ from ttrpg_assistant.pdf_parser.parser import PDFParser
 from ttrpg_assistant.map_generator.generator import MapGenerator
 from ttrpg_assistant.content_packager.packager import ContentPackager
 from ttrpg_assistant.search_engine.enhanced_search_service import EnhancedSearchService
-from .dependencies import get_chroma_manager, get_embedding_service, get_pdf_parser
+from ttrpg_assistant.personality_service.personality_manager import PersonalityManager
+from .dependencies import get_chroma_manager, get_embedding_service, get_pdf_parser, get_personality_manager
 import numpy as np
 from typing import Dict, Any, List, Optional
 from ttrpg_assistant.data_models.models import ContentChunk, InitiativeEntry, MonsterState, SourceType, MapGenerationInput
@@ -86,12 +87,18 @@ class SearchExplanationInput(BaseModel):
     query: str
     result_ids: List[str] = []
 
+class ManagePersonalityInput(BaseModel):
+    action: str  # "get", "list", "summary", "vernacular", "compare", "stats"
+    system_name: str = None
+    systems: List[str] = []
+
 
 @router.post("/search")
 async def search(
     input: SearchInput,
     chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
-    embedding_service: EmbeddingService = Depends(get_embedding_service)
+    embedding_service: EmbeddingService = Depends(get_embedding_service),
+    personality_manager: PersonalityManager = Depends(get_personality_manager)
 ):
     # Initialize enhanced search service
     search_service = EnhancedSearchService(chroma_manager, embedding_service)
@@ -118,13 +125,32 @@ async def search(
         ) for s in suggestions
     ]
     
+    # Enhance results with personality context if available
+    enhanced_results = results
+    personality_context = None
+    
+    if results and hasattr(results[0], 'content_chunk') and results[0].content_chunk:
+        system_name = results[0].content_chunk.system
+        personality_summary = personality_manager.get_personality_summary(system_name)
+        
+        if personality_summary:
+            personality_context = {
+                "system_name": system_name,
+                "personality_name": personality_summary.get("personality_name"),
+                "tone": personality_summary.get("tone"),
+                "perspective": personality_summary.get("perspective"),
+                "example_phrases": personality_summary.get("example_phrases", [])[:3]
+            }
+    
     return {
-        "results": results,
+        "results": enhanced_results,
         "suggestions": suggestion_responses,
+        "personality_context": personality_context,
         "search_stats": {
             "total_results": len(results),
             "has_suggestions": len(suggestions) > 0,
-            "search_type": "hybrid" if input.use_hybrid else "semantic"
+            "search_type": "hybrid" if input.use_hybrid else "semantic",
+            "personality_enhanced": personality_context is not None
         }
     }
 
@@ -176,7 +202,8 @@ async def manage_campaign(
 async def add_source(
     input: AddSourceInput,
     chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
-    pdf_parser: PDFParser = Depends(get_pdf_parser)
+    pdf_parser: PDFParser = Depends(get_pdf_parser),
+    personality_manager: PersonalityManager = Depends(get_personality_manager)
 ):
     # Use enhanced PDF parsing with adaptive learning
     chunks_data = pdf_parser.create_chunks(
@@ -206,8 +233,8 @@ async def add_source(
     
     chroma_manager.store_rulebook_content("rulebook_index", content_chunks)
 
-    personality_text = pdf_parser.extract_personality_text(input.pdf_path)
-    chroma_manager.store_rulebook_personality(input.rulebook_name, personality_text)
+    # Extract and store personality profile
+    personality = personality_manager.extract_and_store_personality(content_chunks, input.system)
     
     # Get adaptive learning statistics if available
     stats = pdf_parser.get_adaptive_statistics(input.system)
@@ -218,17 +245,22 @@ async def add_source(
         if pattern_count > 0:
             stats_message = f" Learned {pattern_count} content patterns."
     
-    return {"status": "success", "message": f"Source '{input.rulebook_name}' added successfully.{stats_message}"}
+    # Add personality information to success message
+    personality_message = ""
+    if personality:
+        personality_message = f" Personality '{personality.personality_name}' extracted with {len(personality.vernacular_patterns)} vernacular terms."
+    
+    return {"status": "success", "message": f"Source '{input.rulebook_name}' added successfully.{stats_message}{personality_message}"}
 
 @router.post("/get_rulebook_personality")
 async def get_rulebook_personality(
     input: GetRulebookPersonalityInput,
-    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
+    personality_manager: PersonalityManager = Depends(get_personality_manager)
 ):
-    personality = chroma_manager.get_rulebook_personality(input.rulebook_name)
+    personality = personality_manager.get_personality(input.rulebook_name)
     if not personality:
         raise HTTPException(status_code=404, detail="Personality not found for this rulebook.")
-    return {"personality": personality}
+    return {"personality": personality.to_dict()}
 
 @router.post("/get_character_creation_rules")
 async def get_character_creation_rules(
@@ -254,18 +286,26 @@ async def get_character_creation_rules(
 @router.post("/generate_backstory")
 async def generate_backstory(
     input: GenerateBackstoryInput,
-    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
+    personality_manager: PersonalityManager = Depends(get_personality_manager)
 ):
-    personalities = [chroma_manager.get_rulebook_personality(input.rulebook_name)]
+    # Get personality profiles
+    personalities = []
+    main_personality = personality_manager.get_personality(input.rulebook_name)
+    if main_personality:
+        personalities.append(main_personality.system_context + " - " + main_personality.description)
+    
     for source in input.flavor_sources:
-        personalities.append(chroma_manager.get_rulebook_personality(source))
+        source_personality = personality_manager.get_personality(source)
+        if source_personality:
+            personalities.append(source_personality.system_context + " - " + source_personality.description)
     
     backstory = f"This is a generated backstory for a character in {input.rulebook_name}.\n"
     backstory += f"Character details: {input.character_details}\n"
     if input.player_params:
         backstory += f"Player parameters: {input.player_params}\n"
     
-    backstory += f"\n--- Vibe ---\n" + "\n".join(filter(None, personalities))
+    if personalities:
+        backstory += f"\n--- Setting Context ---\n" + "\n".join(personalities)
     
     return {"backstory": backstory}
 
@@ -273,11 +313,19 @@ async def generate_backstory(
 async def generate_npc(
     input: GenerateNPCInput,
     chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
-    embedding_service: EmbeddingService = Depends(get_embedding_service)
+    embedding_service: EmbeddingService = Depends(get_embedding_service),
+    personality_manager: PersonalityManager = Depends(get_personality_manager)
 ):
-    personalities = [chroma_manager.get_rulebook_personality(input.rulebook_name)]
+    # Get personality profiles
+    personalities = []
+    main_personality = personality_manager.get_personality(input.rulebook_name)
+    if main_personality:
+        personalities.append(main_personality.system_context + " - " + main_personality.description)
+    
     for source in input.flavor_sources:
-        personalities.append(chroma_manager.get_rulebook_personality(source))
+        source_personality = personality_manager.get_personality(source)
+        if source_personality:
+            personalities.append(source_personality.system_context + " - " + source_personality.description)
 
     query = "monster stat block or non-player character"
     query_embedding = np.array(embedding_service.generate_embedding(query))
@@ -297,8 +345,9 @@ async def generate_npc(
         npc += "\n--- Examples from the rulebook ---\n"
         for example in examples:
             npc += f"- {example.content_chunk.title}: {example.content_chunk.content}\n"
-            
-    npc += f"\n--- Vibe ---\n" + "\n".join(filter(None, personalities))
+    
+    if personalities:
+        npc += f"\n--- Setting Context ---\n" + "\n".join(personalities)
     
     return {"npc": npc}
 
@@ -394,18 +443,75 @@ async def generate_map(
     svg_map = map_generator.generate_map(input.map_description)
     return {"map": svg_map}
 
+@router.post("/manage_personality")
+async def manage_personality(
+    input: ManagePersonalityInput,
+    personality_manager: PersonalityManager = Depends(get_personality_manager)
+):
+    """Manage RPG personality profiles and vernacular"""
+    
+    if input.action == "get":
+        if not input.system_name:
+            raise HTTPException(status_code=400, detail="system_name is required for get action")
+        
+        personality = personality_manager.get_personality(input.system_name)
+        if not personality:
+            raise HTTPException(status_code=404, detail=f"No personality profile found for {input.system_name}")
+        
+        return {"personality": personality.to_dict()}
+    
+    elif input.action == "list":
+        personalities = personality_manager.list_personalities()
+        return {"personalities": personalities}
+    
+    elif input.action == "summary":
+        if not input.system_name:
+            raise HTTPException(status_code=400, detail="system_name is required for summary action")
+        
+        summary = personality_manager.get_personality_summary(input.system_name)
+        if not summary:
+            raise HTTPException(status_code=404, detail=f"No personality profile found for {input.system_name}")
+        
+        return {"summary": summary}
+    
+    elif input.action == "vernacular":
+        if not input.system_name:
+            raise HTTPException(status_code=400, detail="system_name is required for vernacular action")
+        
+        vernacular = personality_manager.get_vernacular_for_system(input.system_name)
+        return {
+            "system_name": input.system_name,
+            "vernacular": vernacular,
+            "count": len(vernacular)
+        }
+    
+    elif input.action == "compare":
+        if not input.systems or len(input.systems) < 2:
+            raise HTTPException(status_code=400, detail="at least 2 systems are required for comparison")
+        
+        comparison = personality_manager.create_personality_comparison(input.systems)
+        return {"comparison": comparison}
+    
+    elif input.action == "stats":
+        stats = personality_manager.get_personality_stats()
+        return {"stats": stats}
+    
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown action: {input.action}")
+
 @router.post("/create_content_pack")
 async def create_content_pack(
     input: CreateContentPackInput,
-    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
+    personality_manager: PersonalityManager = Depends(get_personality_manager)
 ):
     # This is a simplified implementation. A real implementation would need to
     # retrieve the actual chunks for the given source.
     chunks = []
-    personality = chroma_manager.get_rulebook_personality(input.source_name)
+    personality = personality_manager.get_personality(input.source_name)
     
     packager = ContentPackager()
-    packager.create_pack(chunks, personality, input.output_path)
+    packager.create_pack(chunks, personality.to_dict() if personality else None, input.output_path)
     
     return {"status": "success", "message": f"Content pack created at {input.output_path}"}
 

@@ -14,22 +14,27 @@ graph TB
     B --> C[TTRPG MCP Server]
     C --> D[PDF Parser]
     C --> E[Vector Embedding Service]
-    C --> F[Redis Database]
+    C --> F[ChromaDB Database]
     C --> G[Campaign Manager]
     C --> M[Map Generator]
     C --> N[Content Packager]
     C --> O[Discord Bot]
+    C --> P[Personality Manager]
     
     D --> H[Raw PDF Files]
     E --> I[Sentence Transformers]
     F --> J[Vector Index]
     F --> K[Campaign Data]
     F --> L[Rulebook Content]
+    F --> Q[Personality Profiles]
+    P --> R[Personality Extractor]
     
     subgraph "Data Flow"
         H --> D
         D --> E
+        D --> P
         E --> F
+        P --> F
     end
 ```
 
@@ -39,13 +44,14 @@ The system follows a modular design with clear separation of concerns:
 
 1.  **MCP Server Layer**: Handles protocol communication and request routing
 2.  **Service Layer**: Business logic for search, parsing, and campaign management
-3.  **Data Layer**: Redis-based storage with vector and traditional data capabilities
+3.  **Data Layer**: ChromaDB-based storage with vector and traditional data capabilities
 4.  **Processing Layer**: PDF parsing and embedding generation
-5.  **Web UI Layer**: A user-friendly web interface for interacting with the system.
-6.  **CLI Layer**: A command-line interface for interacting with the system.
-7.  **Map Generation Layer**: Generates simple SVG maps for combat encounters.
-8.  **Content Packager Layer**: Creates and loads content packs.
-9.  **Discord Bot Layer**: Integrates the TTRPG Assistant with Discord.
+5.  **Personality Layer**: Extracts and manages RPG system personalities and vernacular
+6.  **Web UI Layer**: A user-friendly web interface for interacting with the system.
+7.  **CLI Layer**: A command-line interface for interacting with the system.
+8.  **Map Generation Layer**: Generates simple SVG maps for combat encounters.
+9.  **Content Packager Layer**: Creates and loads content packs.
+10.  **Discord Bot Layer**: Integrates the TTRPG Assistant with Discord.
 
 ## Components and Interfaces
 
@@ -229,6 +235,30 @@ TOOLS = [
             "properties": {},
             "required": []
         }
+    },
+    {
+        "name": "manage_personality",
+        "description": "Manage RPG personality profiles and vernacular",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": ["get", "list", "summary", "vernacular", "compare", "stats"],
+                    "description": "Action to perform"
+                },
+                "system_name": {
+                    "type": "string",
+                    "description": "RPG system name"
+                },
+                "systems": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of systems for comparison"
+                }
+            },
+            "required": ["action"]
+        }
     }
 ]
 ```
@@ -271,11 +301,11 @@ class RedisDataManager:
         pass
 
     def store_rulebook_personality(self, rulebook_name: str, personality_text: str) -> None:
-        """Stores the personality text for a rulebook."""
+        """Stores the personality text for a rulebook (deprecated - use PersonalityManager)."""
         pass
 
     def get_rulebook_personality(self, rulebook_name: str) -> str:
-        """Retrieves the personality text for a rulebook."""
+        """Retrieves the personality text for a rulebook (deprecated - use PersonalityManager)."""
         pass
     
     def vector_search(self, query_embedding: List[float], filters: Dict = None) -> List[SearchResult]:
@@ -296,6 +326,56 @@ class RedisDataManager:
 
     def import_campaign_data(self, campaign_id: str, data: Dict[str, Any]) -> None:
         """Import campaign data"""
+        pass
+```
+
+### Personality Service Component
+
+```python
+class PersonalityManager:
+    """Manages personality profiles and vernacular for RPG systems"""
+    
+    def __init__(self, data_manager: ChromaDataManager):
+        self.data_manager = data_manager
+        self.extractor = PersonalityExtractor()
+    
+    def extract_and_store_personality(self, chunks: List[ContentChunk], system_name: str) -> Optional[RPGPersonality]:
+        """Extract personality from chunks and store it"""
+        pass
+    
+    def get_personality(self, system_name: str) -> Optional[RPGPersonality]:
+        """Get personality profile for a system"""
+        pass
+    
+    def get_personality_summary(self, system_name: str) -> Optional[Dict[str, Any]]:
+        """Get a summary of personality data for a system"""
+        pass
+    
+    def list_personalities(self) -> List[str]:
+        """List all available personality systems"""
+        pass
+    
+    def get_vernacular_for_system(self, system_name: str) -> List[Dict[str, Any]]:
+        """Get vernacular terms for a system"""
+        pass
+    
+    def generate_personality_prompt(self, system_name: str, query: str, context: str = "") -> Optional[PersonalityPrompt]:
+        """Generate a personality-aware prompt for a system"""
+        pass
+    
+    def create_personality_comparison(self, systems: List[str]) -> Dict[str, Any]:
+        """Create a comparison between personality systems"""
+        pass
+
+class PersonalityExtractor:
+    """Extracts personality traits and vernacular from rulebook content"""
+    
+    def extract_personality(self, chunks: List[ContentChunk], system_name: str) -> RPGPersonality:
+        """Extract personality profile from rulebook content"""
+        pass
+    
+    def generate_personality_prompt(self, personality: RPGPersonality, query: str, context: str = "") -> PersonalityPrompt:
+        """Generate a personality-aware prompt"""
         pass
 ```
 
@@ -365,6 +445,58 @@ class SessionData(CampaignData):
     notes: List[str] = None
     initiative_order: List[InitiativeEntry] = None
     monsters: List[MonsterState] = None
+```
+
+### Personality Data Models
+
+```python
+@dataclass
+class VernacularPattern:
+    """Represents a vernacular or speech pattern found in a rulebook"""
+    term: str
+    definition: str
+    context: str
+    frequency: int
+    examples: List[str]
+    category: str  # "neologism", "archaic", "technical", "slang", "formal", "magical", "mechanical"
+
+@dataclass
+class PersonalityTrait:
+    """Represents a personality trait extracted from writing style"""
+    trait_name: str
+    description: str
+    evidence_text: List[str]
+    confidence: float
+    examples: List[str]
+
+@dataclass
+class RPGPersonality:
+    """Represents the personality profile for an RPG system"""
+    system_name: str
+    personality_name: str
+    description: str
+    tone: str  # "formal", "casual", "mysterious", "authoritative", "whimsical"
+    perspective: str  # "omniscient", "scholarly", "conspiratorial", "practical"
+    formality_level: str  # "high", "medium", "low"
+    vernacular_patterns: List[VernacularPattern]
+    personality_traits: List[PersonalityTrait]
+    preferred_structure: str  # "academic", "narrative", "bullet_points", "conversational"
+    example_phrases: List[str]
+    avoid_phrases: List[str]
+    system_context: str  # Background information about the RPG setting
+    response_style: str  # How to format responses
+    extracted_from: List[str]  # Source rulebooks
+    created_at: datetime
+    confidence_score: float
+
+@dataclass
+class PersonalityPrompt:
+    """Represents a personality-aware prompt template"""
+    system_name: str
+    base_prompt: str
+    personality_instructions: str
+    example_responses: List[str]
+    vernacular_instructions: str
 ```
 
 ## Error Handling

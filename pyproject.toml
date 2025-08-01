@@ -1,0 +1,193 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ttrpg-assistant"
+version = "2.0.0"
+description = "A Model Context Protocol server for TTRPG assistance with AI-powered search and campaign management"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "TTRPG Assistant Contributors"}
+]
+maintainers = [
+    {name = "TTRPG Assistant Contributors"}
+]
+keywords = ["ttrpg", "mcp", "ai", "assistant", "tabletop", "rpg", "dungeon-master"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment :: Role-Playing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "chromadb",
+    "sentence-transformers",
+    "pypdf",
+    "pyyaml",
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "httpx",
+    "requests",
+    "svgwrite",
+    "discord.py",
+    "scikit-learn>=1.0.0",
+    "spacy>=3.4.0",
+    "numpy>=1.21.0",
+    "rank-bm25>=0.2.2",
+    "mcp>=1.0.0",
+    "fastmcp>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-discord",
+    "pytest-cov",
+    "black",
+    "isort",
+    "flake8",
+    "mypy",
+    "bandit",
+    "pre-commit",
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
+performance = [
+    "orjson",
+    "uvloop",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/mcp-dm-gemini"
+"Bug Reports" = "https://github.com/yourusername/mcp-dm-gemini/issues"
+"Source" = "https://github.com/yourusername/mcp-dm-gemini"
+"Documentation" = "https://github.com/yourusername/mcp-dm-gemini/blob/main/docs/"
+
+[project.scripts]
+ttrpg-assistant = "main:main"
+ttrpg-mcp-server = "mcp_server_standalone:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ttrpg_assistant*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"ttrpg_assistant" = ["*.yaml", "*.json"]
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# pytest configuration
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "discord: marks tests that require Discord bot setup",
+]
+asyncio_mode = "auto"
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["ttrpg_assistant"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "chromadb.*",
+    "sentence_transformers.*",
+    "discord.*",
+    "pypdf.*",
+    "svgwrite.*",
+    "rank_bm25.*",
+    "spacy.*",
+    "sklearn.*",
+]
+ignore_missing_imports = true
+
+# Bandit configuration
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101", "B601"]  # Skip assert statements and shell injection (paramiko)
