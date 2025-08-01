@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "TTRPG-mcp": {
+      "command": "py",
+      "args": ["-3.13", "C:\\Users\\W15\\vibes\\dn\\cli.py"]
+    }
+  }
+}

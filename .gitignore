@@ -150,3 +150,6 @@ playground/
 user_data/
 my_*/
 custom_*/
+
+chroma_db/chroma.sqlite3
+ttrpg_assistant.log

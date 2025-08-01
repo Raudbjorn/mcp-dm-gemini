@@ -92,7 +92,6 @@ class ManagePersonalityInput(BaseModel):
     system_name: str = None
     systems: List[str] = []
 
-
 @router.post("/search")
 async def search(
     input: SearchInput,

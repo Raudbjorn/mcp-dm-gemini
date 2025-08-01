@@ -13,12 +13,58 @@
         <a href="/campaign">Campaign</a>
         <a href="/add-rulebook">Add Rulebook</a>
         <a href="/session">Session</a>
+        <a href="/personality">Personality</a>
     </nav>
     <h1>Search Rulebooks</h1>
     <form id="search-form">
-        <input type="text" id="query" placeholder="Enter your search query">
-        <button type="submit">Search</button>
+        <div class="search-input">
+            <input type="text" id="query" placeholder="Enter your search query" required>
+            <button type="submit">🔍 Search</button>
+        </div>
+        
+        <div class="search-options">
+            <details>
+                <summary>Advanced Search Options</summary>
+                <div class="advanced-options">
+                    <div class="option-group">
+                        <label for="rulebook">Specific Rulebook:</label>
+                        <input type="text" id="rulebook" placeholder="Optional: filter by rulebook name">
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="content-type">Content Type:</label>
+                        <select id="content-type">
+                            <option value="">Any</option>
+                            <option value="rule">Rules</option>
+                            <option value="spell">Spells</option>
+                            <option value="monster">Monsters</option>
+                            <option value="item">Items</option>
+                            <option value="class">Classes</option>
+                            <option value="background">Backgrounds</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="max-results">Max Results:</label>
+                        <select id="max-results">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>
+                            <input type="checkbox" id="use-hybrid" checked>
+                            Use Hybrid Search (semantic + keyword)
+                        </label>
+                    </div>
+                </div>
+            </details>
+        </div>
     </form>
+    
     <div id="results"></div>
     
     <script src="/static/script.js"></script>

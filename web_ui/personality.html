@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personality Management - TTRPG Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/search">Search</a>
+        <a href="/campaign">Campaign</a>
+        <a href="/add-rulebook">Add Rulebook</a>
+        <a href="/session">Session</a>
+        <a href="/personality">Personality</a>
+    </nav>
+    <h1>RPG Personality Management</h1>
+    <div class="personality-container">
+        <div class="personality-actions">
+            <button onclick="listPersonalities()">List All Personalities</button>
+            <button onclick="getPersonalityStats()">Get Statistics</button>
+        </div>
+        
+        <div class="personality-search">
+            <h3>Get Personality Details</h3>
+            <input type="text" id="system-name" placeholder="Enter system name (e.g., D&D 5e)">
+            <button onclick="getPersonality()">Get Details</button>
+            <button onclick="getVernacular()">Get Vernacular</button>
+        </div>
+        
+        <div class="personality-compare">
+            <h3>Compare Systems</h3>
+            <input type="text" id="compare-systems" placeholder="Enter systems separated by commas (e.g., D&D 5e, Call of Cthulhu)">
+            <button onclick="comparePersonalities()">Compare</button>
+        </div>
+        
+        <div id="personality-results"></div>
+    </div>
+    
+    <script>
+        async function listPersonalities() {
+            const results = document.getElementById('personality-results');
+            results.innerHTML = '<p>Loading personalities...</p>';
+            
+            try {
+                const response = await fetch('/api/personality', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'list' })
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch personalities');
+                
+                const data = await response.json();
+                
+                let html = '<h3>Available Personalities</h3><ul>';
+                if (data.personalities && data.personalities.length > 0) {
+                    data.personalities.forEach(system => {
+                        html += `<li><strong>${system}</strong> 
+                                 <button onclick="getPersonalityDetails('${system}')">Details</button>
+                                 <button onclick="getPersonalityVernacular('${system}')">Vernacular</button>
+                                 </li>`;
+                    });
+                } else {
+                    html += '<li>No personalities found. Add some rulebooks first!</li>';
+                }
+                html += '</ul>';
+                
+                results.innerHTML = html;
+            } catch (error) {
+                results.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function getPersonality() {
+            const systemName = document.getElementById('system-name').value.trim();
+            if (!systemName) {
+                alert('Please enter a system name');
+                return;
+            }
+            
+            await getPersonalityDetails(systemName);
+        }
+        
+        async function getPersonalityDetails(systemName) {
+            const results = document.getElementById('personality-results');
+            results.innerHTML = '<p>Loading personality details...</p>';
+            
+            try {
+                const response = await fetch('/api/personality', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'summary', system_name: systemName })
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch personality details');
+                
+                const data = await response.json();
+                const summary = data.summary;
+                
+                let html = `<h3>Personality Details: ${summary.personality_name}</h3>`;
+                html += `<div class="personality-card">`;
+                html += `<p><strong>System:</strong> ${summary.system_name}</p>`;
+                html += `<p><strong>Description:</strong> ${summary.description}</p>`;
+                html += `<p><strong>Tone:</strong> ${summary.tone}</p>`;
+                html += `<p><strong>Perspective:</strong> ${summary.perspective}</p>`;
+                html += `<p><strong>Formality:</strong> ${summary.formality_level}</p>`;
+                html += `<p><strong>Confidence Score:</strong> ${summary.confidence_score.toFixed(2)}</p>`;
+                html += `<p><strong>Vernacular Terms:</strong> ${summary.vernacular_count}</p>`;
+                html += `<p><strong>Context:</strong> ${summary.system_context}</p>`;
+                
+                if (summary.example_phrases && summary.example_phrases.length > 0) {
+                    html += '<h4>Example Phrases:</h4><ul>';
+                    summary.example_phrases.forEach(phrase => {
+                        html += `<li>"${phrase}"</li>`;
+                    });
+                    html += '</ul>';
+                }
+                html += '</div>';
+                
+                results.innerHTML = html;
+            } catch (error) {
+                results.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function getVernacular() {
+            const systemName = document.getElementById('system-name').value.trim();
+            if (!systemName) {
+                alert('Please enter a system name');
+                return;
+            }
+            
+            await getPersonalityVernacular(systemName);
+        }
+        
+        async function getPersonalityVernacular(systemName) {
+            const results = document.getElementById('personality-results');
+            results.innerHTML = '<p>Loading vernacular...</p>';
+            
+            try {
+                const response = await fetch('/api/personality', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'vernacular', system_name: systemName })
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch vernacular');
+                
+                const data = await response.json();
+                
+                let html = `<h3>Vernacular for ${systemName} (${data.count} terms)</h3>`;
+                
+                if (data.vernacular && data.vernacular.length > 0) {
+                    // Group by category
+                    const byCategory = {};
+                    data.vernacular.forEach(term => {
+                        if (!byCategory[term.category]) byCategory[term.category] = [];
+                        byCategory[term.category].push(term);
+                    });
+                    
+                    for (const [category, terms] of Object.entries(byCategory)) {
+                        html += `<h4>${category.charAt(0).toUpperCase() + category.slice(1)} Terms:</h4>`;
+                        html += '<div class="vernacular-list">';
+                        terms.forEach(term => {
+                            html += `<div class="vernacular-term">`;
+                            html += `<strong>${term.term}</strong> (freq: ${term.frequency})`;
+                            if (term.definition) {
+                                html += `<br><em>${term.definition}</em>`;
+                            }
+                            html += `</div>`;
+                        });
+                        html += '</div>';
+                    }
+                } else {
+                    html += '<p>No vernacular terms found for this system.</p>';
+                }
+                
+                results.innerHTML = html;
+            } catch (error) {
+                results.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function comparePersonalities() {
+            const systemsInput = document.getElementById('compare-systems').value.trim();
+            if (!systemsInput) {
+                alert('Please enter system names separated by commas');
+                return;
+            }
+            
+            const systems = systemsInput.split(',').map(s => s.trim()).filter(s => s);
+            if (systems.length < 2) {
+                alert('Please enter at least 2 systems to compare');
+                return;
+            }
+            
+            const results = document.getElementById('personality-results');
+            results.innerHTML = '<p>Comparing personalities...</p>';
+            
+            try {
+                const response = await fetch('/api/personality', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'compare', systems: systems })
+                });
+                
+                if (!response.ok) throw new Error('Failed to compare personalities');
+                
+                const data = await response.json();
+                const comparison = data.comparison;
+                
+                let html = '<h3>Personality Comparison</h3>';
+                html += '<table class="comparison-table">';
+                html += '<tr><th>System</th><th>Tone</th><th>Perspective</th><th>Formality</th><th>Vernacular Count</th></tr>';
+                
+                for (const [system, details] of Object.entries(comparison.comparison_matrix)) {
+                    html += `<tr>`;
+                    html += `<td><strong>${system}</strong></td>`;
+                    html += `<td>${details.tone}</td>`;
+                    html += `<td>${details.perspective}</td>`;
+                    html += `<td>${details.formality}</td>`;
+                    html += `<td>${details.vernacular_count}</td>`;
+                    html += `</tr>`;
+                }
+                html += '</table>';
+                
+                if (comparison.similarities && Object.keys(comparison.similarities).length > 0) {
+                    html += '<h4>Similarities:</h4><ul>';
+                    for (const [pair, similarity] of Object.entries(comparison.similarities)) {
+                        html += `<li>${pair}: ${(similarity * 100).toFixed(1)}% similar</li>`;
+                    }
+                    html += '</ul>';
+                }
+                
+                results.innerHTML = html;
+            } catch (error) {
+                results.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function getPersonalityStats() {
+            const results = document.getElementById('personality-results');
+            results.innerHTML = '<p>Loading statistics...</p>';
+            
+            try {
+                const response = await fetch('/api/personality', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'stats' })
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch statistics');
+                
+                const data = await response.json();
+                const stats = data.stats;
+                
+                let html = '<h3>Personality Statistics</h3>';
+                html += '<div class="stats-grid">';
+                html += `<div class="stat-card"><h4>Total Personalities</h4><p class="stat-number">${stats.total_personalities}</p></div>`;
+                html += `<div class="stat-card"><h4>Average Confidence</h4><p class="stat-number">${stats.average_confidence.toFixed(2)}</p></div>`;
+                html += `<div class="stat-card"><h4>Total Vernacular Terms</h4><p class="stat-number">${stats.total_vernacular_terms}</p></div>`;
+                html += '</div>';
+                
+                if (stats.personalities_by_tone) {
+                    html += '<h4>By Tone:</h4><ul>';
+                    for (const [tone, count] of Object.entries(stats.personalities_by_tone)) {
+                        html += `<li>${tone}: ${count}</li>`;
+                    }
+                    html += '</ul>';
+                }
+                
+                if (stats.personalities_by_formality) {
+                    html += '<h4>By Formality:</h4><ul>';
+                    for (const [formality, count] of Object.entries(stats.personalities_by_formality)) {
+                        html += `<li>${formality}: ${count}</li>`;
+                    }
+                    html += '</ul>';
+                }
+                
+                results.innerHTML = html;
+            } catch (error) {
+                results.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Load personalities on page load
+        window.onload = () => {
+            listPersonalities();
+        };
+    </script>
+</body>
+</html>
