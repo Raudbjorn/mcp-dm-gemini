@@ -188,6 +188,47 @@ TOOLS = [
                 "pack_path": {"type": "string", "description": "The path to the content pack"}
             }
         }
+    },
+    {
+        "name": "quick_search",
+        "description": "Quick search for simple lookups without extensive processing",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search query"},
+                "max_results": {"type": "integer", "default": 3}
+            }
+        }
+    },
+    {
+        "name": "suggest_completions",
+        "description": "Get query completion suggestions based on vocabulary",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "partial_query": {"type": "string", "description": "Partial query to complete"},
+                "limit": {"type": "integer", "default": 5}
+            }
+        }
+    },
+    {
+        "name": "explain_search",
+        "description": "Get detailed explanation of search results and relevance factors",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Query to explain"}
+            }
+        }
+    },
+    {
+        "name": "get_search_stats",
+        "description": "Get statistics about the search service",
+        "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
     }
 ]
 ```

@@ -1,12 +1,18 @@
 import discord
 from discord.ext import commands
-import yaml
 import requests
 import json
+import sys
+from pathlib import Path
+
+# Add the project root to the Python path so we can import ttrpg_assistant
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from ttrpg_assistant.config_utils import load_config
 
 # Load configuration
-with open("config/config.yaml", 'r') as f:
-    config = yaml.safe_load(f)
+config = load_config("config.yaml")
 
 # Set up the bot
 intents = discord.Intents.default()

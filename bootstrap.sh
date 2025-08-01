@@ -2,6 +2,7 @@
 
 # bootstrap.sh
 # This script initializes the TTRPG Assistant MCP Server environment.
+# Updated for ChromaDB-based architecture with enhanced search capabilities.
 
 # --- Configuration ---
 VENV_DIR=".venv"
@@ -49,34 +50,52 @@ else
     print_info "No '$REQUIREMENTS_FILE' found. Skipping dependency installation."
 fi
 
-# 3. Check for Redis
-print_info "Checking for Redis..."
-if ! command -v redis-server &> /dev/null; then
-    print_error "Redis is not installed. Please install Redis and ensure 'redis-server' is in your PATH."
-    exit 1
+# 3. Initialize ChromaDB directory
+print_info "Initializing ChromaDB directory..."
+mkdir -p ./chroma_db
+mkdir -p ./pattern_cache
+
+# 4. Create config file if it doesn't exist
+if [ ! -f "config/config.yaml" ]; then
+    print_info "Creating default configuration..."
+    mkdir -p config
+    cat > config/config.yaml << 'EOF'
+chromadb:
+  persist_directory: "./chroma_db"
+  anonymized_telemetry: true
+
+embedding:
+  model: "all-MiniLM-L6-v2"
+  batch_size: 32
+  cache_embeddings: true
+
+pdf_processing:
+  max_file_size_mb: 100
+  enable_adaptive_learning: true
+  pattern_cache_dir: "./pattern_cache"
+
+search:
+  default_max_results: 5
+  similarity_threshold: 0.7
+  enable_keyword_fallback: true
+  enable_hybrid_search: true
+
+mcp:
+  server_name: "ttrpg-assistant"
+  version: "1.0.0"
+
+discord:
+  token: "YOUR_DISCORD_BOT_TOKEN"
+EOF
 fi
 
-# Check if Redis is running
-if ! redis-cli ping &> /dev/null; then
-    print_info "Redis is not running. Starting Redis server in the background..."
-    redis-server --daemonize yes
-    if [ $? -ne 0 ]; then
-        print_error "Failed to start Redis server."
-        exit 1
-    fi
-    print_info "Redis server started."
-else
-    print_info "Redis is already running."
-fi
-
-# 4. Start MCP Server and Web UI
-if [ -f "$MCP_SERVER_FILE" ]; then
-    print_info "Starting TTRPG Assistant Server..."
-    print_info "MCP Server and Web UI will be available at http://$HOST:$PORT"
-    print_info "Access the Web UI by navigating to http://localhost:$PORT/ui in your browser."
-    print_info "Press Ctrl+C to stop the server."
-    python "$MCP_SERVER_FILE"
-else
-    print_error "'$MCP_SERVER_FILE' not found. Cannot start the server."
-    exit 1
-fi
+# 5. Display usage options
+print_info "TTRPG Assistant setup complete!"
+print_info ""
+print_info "Usage options:"
+print_info "1. For Claude Desktop integration: ./mcp_stdio.sh"
+print_info "2. For direct FastMCP testing: ./run_main.sh"
+print_info "3. For web UI server: python $MCP_SERVER_FILE"
+print_info ""
+print_info "The system now uses ChromaDB for vector storage and enhanced search."
+print_info "Configuration is stored in config/config.yaml"

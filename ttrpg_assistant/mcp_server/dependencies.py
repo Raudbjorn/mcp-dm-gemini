@@ -1,11 +1,17 @@
-from ttrpg_assistant.redis_manager.manager import RedisDataManager
+from ttrpg_assistant.chromadb_manager.manager import ChromaDataManager
 from ttrpg_assistant.embedding_service.embedding import EmbeddingService
 from ttrpg_assistant.pdf_parser.parser import PDFParser
+from ttrpg_assistant.config_utils import load_config_safe
 from functools import lru_cache
 
 @lru_cache(maxsize=None)
 def get_redis_manager():
-    return RedisDataManager()
+    """Renamed for compatibility - returns ChromaDataManager"""
+    return ChromaDataManager()
+
+@lru_cache(maxsize=None)
+def get_chroma_manager():
+    return ChromaDataManager()
 
 @lru_cache(maxsize=None)
 def get_embedding_service():
@@ -13,4 +19,11 @@ def get_embedding_service():
 
 @lru_cache(maxsize=None)
 def get_pdf_parser():
-    return PDFParser()
+    """Create PDF parser with configuration from config.yaml"""
+    config = load_config_safe("config.yaml")
+    pdf_config = config.get('pdf_processing', {})
+    
+    return PDFParser(
+        enable_adaptive_learning=pdf_config.get('enable_adaptive_learning', True),
+        pattern_cache_dir=pdf_config.get('pattern_cache_dir', './pattern_cache')
+    )

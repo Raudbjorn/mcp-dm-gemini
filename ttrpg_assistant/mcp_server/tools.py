@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from ttrpg_assistant.redis_manager.manager import RedisDataManager
+from ttrpg_assistant.chromadb_manager.manager import ChromaDataManager
 from ttrpg_assistant.embedding_service.embedding import EmbeddingService
 from ttrpg_assistant.pdf_parser.parser import PDFParser
 from ttrpg_assistant.map_generator.generator import MapGenerator
 from ttrpg_assistant.content_packager.packager import ContentPackager
-from .dependencies import get_redis_manager, get_embedding_service, get_pdf_parser
+from ttrpg_assistant.search_engine.enhanced_search_service import EnhancedSearchService
+from .dependencies import get_chroma_manager, get_embedding_service, get_pdf_parser
 import numpy as np
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from ttrpg_assistant.data_models.models import ContentChunk, InitiativeEntry, MonsterState, SourceType, MapGenerationInput
 import json
 
@@ -19,6 +20,15 @@ class SearchInput(BaseModel):
     source_type: SourceType = None
     content_type: str = None
     max_results: int = 5
+    use_hybrid: bool = True
+    context: Optional[Dict[str, Any]] = None
+
+class QuerySuggestionResponse(BaseModel):
+    original_query: str
+    suggested_query: str
+    confidence: float
+    suggestion_type: str
+    explanation: str
 
 class ManageCampaignInput(BaseModel):
     action: str
@@ -64,52 +74,79 @@ class CreateContentPackInput(BaseModel):
 class InstallContentPackInput(BaseModel):
     pack_path: str
 
+class QuickSearchInput(BaseModel):
+    query: str
+    max_results: int = 3
+
+class QueryCompletionInput(BaseModel):
+    partial_query: str
+    limit: int = 5
+
+class SearchExplanationInput(BaseModel):
+    query: str
+    result_ids: List[str] = []
+
 
 @router.post("/search")
 async def search(
     input: SearchInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager),
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
     embedding_service: EmbeddingService = Depends(get_embedding_service)
 ):
-    query_embedding = np.array(embedding_service.generate_embedding(input.query))
+    # Initialize enhanced search service
+    search_service = EnhancedSearchService(chroma_manager, embedding_service)
     
-    filters = []
-    if input.rulebook:
-        filters.append(f"@rulebook:{input.rulebook}")
-    if input.source_type:
-        filters.append(f"@source_type:{input.source_type.value}")
-    if input.content_type:
-        filters.append(f"@content_type:{input.content_type}")
-    
-    filter_str = " ".join(filters) if filters else "*"
-
-    results = redis_manager.vector_search(
-        index_name="rulebook_index",
-        query_embedding=query_embedding,
-        num_results=input.max_results,
-        filters=filter_str
+    # Perform enhanced search
+    results, suggestions = await search_service.search(
+        query=input.query,
+        rulebook=input.rulebook,
+        source_type=input.source_type,
+        content_type=input.content_type,
+        max_results=input.max_results,
+        context=input.context,
+        use_hybrid=input.use_hybrid
     )
-    return {"results": results}
+    
+    # Convert suggestions to response format
+    suggestion_responses = [
+        QuerySuggestionResponse(
+            original_query=s.original_query,
+            suggested_query=s.suggested_query,
+            confidence=s.confidence,
+            suggestion_type=s.suggestion_type,
+            explanation=s.explanation
+        ) for s in suggestions
+    ]
+    
+    return {
+        "results": results,
+        "suggestions": suggestion_responses,
+        "search_stats": {
+            "total_results": len(results),
+            "has_suggestions": len(suggestions) > 0,
+            "search_type": "hybrid" if input.use_hybrid else "semantic"
+        }
+    }
 
 @router.post("/manage_campaign")
 async def manage_campaign(
     input: ManageCampaignInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager)
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
 ):
     if input.action == "create":
         if not input.data or not input.data_type:
             raise HTTPException(status_code=400, detail="Data and data_type are required for create action")
-        data_id = redis_manager.store_campaign_data(input.campaign_id, input.data_type, input.data)
+        data_id = chroma_manager.store_campaign_data(input.campaign_id, input.data_type, input.data)
         return {"status": "success", "data_id": data_id}
     
     elif input.action == "read":
-        results = redis_manager.get_campaign_data(input.campaign_id, input.data_type, input.data_id)
+        results = chroma_manager.get_campaign_data(input.campaign_id, input.data_type, input.data_id)
         return {"results": results}
 
     elif input.action == "update":
         if not input.data_id or not input.data or not input.data_type:
             raise HTTPException(status_code=400, detail="Data ID, data, and data_type are required for update action")
-        success = redis_manager.update_campaign_data(input.campaign_id, input.data_type, input.data_id, input.data)
+        success = chroma_manager.update_campaign_data(input.campaign_id, input.data_type, input.data_id, input.data)
         if not success:
             raise HTTPException(status_code=404, detail="Data not found")
         return {"status": "success"}
@@ -117,19 +154,19 @@ async def manage_campaign(
     elif input.action == "delete":
         if not input.data_id or not input.data_type:
             raise HTTPException(status_code=400, detail="Data ID and data_type are required for delete action")
-        success = redis_manager.delete_campaign_data(input.campaign_id, input.data_type, input.data_id)
+        success = chroma_manager.delete_campaign_data(input.campaign_id, input.data_type, input.data_id)
         if not success:
             raise HTTPException(status_code=404, detail="Data not found")
         return {"status": "success"}
 
     elif input.action == "export":
-        data = redis_manager.export_campaign_data(input.campaign_id)
+        data = chroma_manager.export_campaign_data(input.campaign_id)
         return {"data": data}
 
     elif input.action == "import":
         if not input.data:
             raise HTTPException(status_code=400, detail="Data is required for import action")
-        redis_manager.import_campaign_data(input.campaign_id, input.data)
+        chroma_manager.import_campaign_data(input.campaign_id, input.data)
         return {"status": "success"}
         
     else:
@@ -138,10 +175,16 @@ async def manage_campaign(
 @router.post("/add_source")
 async def add_source(
     input: AddSourceInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager),
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
     pdf_parser: PDFParser = Depends(get_pdf_parser)
 ):
-    chunks_data = pdf_parser.create_chunks(input.pdf_path)
+    # Use enhanced PDF parsing with adaptive learning
+    chunks_data = pdf_parser.create_chunks(
+        input.pdf_path, 
+        rulebook_name=input.rulebook_name,
+        system=input.system,
+        source_type=input.source_type.value if hasattr(input.source_type, 'value') else str(input.source_type)
+    )
     
     content_chunks = [
         ContentChunk(
@@ -149,29 +192,40 @@ async def add_source(
             rulebook=input.rulebook_name,
             system=input.system,
             source_type=input.source_type,
-            content_type="text",
-            title=chunk['section']['title'] if chunk.get('section') else '',
+            # Use enhanced content type from adaptive processing if available
+            content_type=chunk.get('content_type', 'text'),
+            title=chunk['section']['title'] if chunk.get('section') and chunk['section'] else chunk.get('title', ''),
             content=chunk['text'],
             page_number=chunk['page_number'],
-            section_path=chunk['section']['path'] if chunk.get('section') else [],
+            section_path=chunk['section']['path'] if chunk.get('section') and chunk['section'] else [],
             embedding=b"",
-            metadata={}
+            # Include enhanced metadata from adaptive processing
+            metadata=chunk.get('metadata', {})
         ) for chunk in chunks_data
     ]
     
-    redis_manager.store_rulebook_content("rulebook_index", content_chunks)
+    chroma_manager.store_rulebook_content("rulebook_index", content_chunks)
 
     personality_text = pdf_parser.extract_personality_text(input.pdf_path)
-    redis_manager.store_rulebook_personality(input.rulebook_name, personality_text)
+    chroma_manager.store_rulebook_personality(input.rulebook_name, personality_text)
     
-    return {"status": "success", "message": f"Source '{input.rulebook_name}' added successfully."}
+    # Get adaptive learning statistics if available
+    stats = pdf_parser.get_adaptive_statistics(input.system)
+    stats_message = ""
+    if "error" not in stats:
+        pattern_count = sum(stats.get('pattern_stats', {}).get(ct, {}).get('total_patterns', 0) 
+                          for ct in stats.get('pattern_stats', {}))
+        if pattern_count > 0:
+            stats_message = f" Learned {pattern_count} content patterns."
+    
+    return {"status": "success", "message": f"Source '{input.rulebook_name}' added successfully.{stats_message}"}
 
 @router.post("/get_rulebook_personality")
 async def get_rulebook_personality(
     input: GetRulebookPersonalityInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager)
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
 ):
-    personality = redis_manager.get_rulebook_personality(input.rulebook_name)
+    personality = chroma_manager.get_rulebook_personality(input.rulebook_name)
     if not personality:
         raise HTTPException(status_code=404, detail="Personality not found for this rulebook.")
     return {"personality": personality}
@@ -179,17 +233,17 @@ async def get_rulebook_personality(
 @router.post("/get_character_creation_rules")
 async def get_character_creation_rules(
     input: GetCharacterCreationRulesInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager),
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
     embedding_service: EmbeddingService = Depends(get_embedding_service)
 ):
     query = "character creation rules"
     query_embedding = np.array(embedding_service.generate_embedding(query))
     
-    results = redis_manager.vector_search(
+    results = chroma_manager.vector_search(
         index_name="rulebook_index",
         query_embedding=query_embedding,
         num_results=1,
-        filters=f"@rulebook:{input.rulebook_name} @source_type:rulebook"
+        filters={"rulebook": input.rulebook_name, "source_type": "rulebook"}
     )
     
     if not results:
@@ -200,11 +254,11 @@ async def get_character_creation_rules(
 @router.post("/generate_backstory")
 async def generate_backstory(
     input: GenerateBackstoryInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager)
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
 ):
-    personalities = [redis_manager.get_rulebook_personality(input.rulebook_name)]
+    personalities = [chroma_manager.get_rulebook_personality(input.rulebook_name)]
     for source in input.flavor_sources:
-        personalities.append(redis_manager.get_rulebook_personality(source))
+        personalities.append(chroma_manager.get_rulebook_personality(source))
     
     backstory = f"This is a generated backstory for a character in {input.rulebook_name}.\n"
     backstory += f"Character details: {input.character_details}\n"
@@ -218,21 +272,21 @@ async def generate_backstory(
 @router.post("/generate_npc")
 async def generate_npc(
     input: GenerateNPCInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager),
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
     embedding_service: EmbeddingService = Depends(get_embedding_service)
 ):
-    personalities = [redis_manager.get_rulebook_personality(input.rulebook_name)]
+    personalities = [chroma_manager.get_rulebook_personality(input.rulebook_name)]
     for source in input.flavor_sources:
-        personalities.append(redis_manager.get_rulebook_personality(source))
+        personalities.append(chroma_manager.get_rulebook_personality(source))
 
     query = "monster stat block or non-player character"
     query_embedding = np.array(embedding_service.generate_embedding(query))
     
-    examples = redis_manager.vector_search(
+    examples = chroma_manager.vector_search(
         index_name="rulebook_index",
         query_embedding=query_embedding,
         num_results=3,
-        filters=f"@rulebook:{input.rulebook_name} @source_type:rulebook"
+        filters={"rulebook": input.rulebook_name, "source_type": "rulebook"}
     )
     
     npc = f"This is a generated NPC for {input.rulebook_name}.\n"
@@ -251,36 +305,49 @@ async def generate_npc(
 @router.post("/manage_session")
 async def manage_session(
     input: ManageSessionInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager)
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
 ):
-    session_key = f"session:{input.campaign_id}:{input.session_id}"
-
     if input.action == "start":
-        if redis_manager.redis_client.exists(session_key):
+        if chroma_manager.session_exists(input.campaign_id, input.session_id):
             raise HTTPException(status_code=400, detail="Session already exists.")
-        redis_manager.redis_client.hset(session_key, mapping={"notes": "[]", "initiative_order": "[]", "monsters": "[]"})
+        
+        initial_data = {
+            "notes": [],
+            "initiative_order": [],
+            "monsters": []
+        }
+        chroma_manager.store_session_data(input.campaign_id, input.session_id, initial_data)
         return {"status": "success", "message": "Session started."}
 
-    if not redis_manager.redis_client.exists(session_key):
+    # Get existing session data
+    session_data = chroma_manager.get_session_data(input.campaign_id, input.session_id)
+    if not session_data:
         raise HTTPException(status_code=404, detail="Session not found.")
 
-    session_data = redis_manager.redis_client.hgetall(session_key)
-    notes = json.loads(session_data.get("notes", "[]"))
-    initiative_order = json.loads(session_data.get("initiative_order", "[]"))
-    monsters = json.loads(session_data.get("monsters", "[]"))
+    notes = session_data.get("notes", [])
+    initiative_order = session_data.get("initiative_order", [])
+    monsters = session_data.get("monsters", [])
 
     if input.action == "add_note":
         if not input.data or "note" not in input.data:
             raise HTTPException(status_code=400, detail="Note data is required.")
         notes.append(input.data['note'])
-        redis_manager.redis_client.hset(session_key, "notes", json.dumps(notes))
+        chroma_manager.update_session_data(input.campaign_id, input.session_id, {
+            "notes": notes,
+            "initiative_order": initiative_order,
+            "monsters": monsters
+        })
         return {"status": "success"}
 
     elif input.action == "set_initiative":
         if not input.data or "order" not in input.data:
             raise HTTPException(status_code=400, detail="Initiative order data is required.")
         initiative_order = [InitiativeEntry(**e).model_dump() for e in input.data['order']]
-        redis_manager.redis_client.hset(session_key, "initiative_order", json.dumps(initiative_order))
+        chroma_manager.update_session_data(input.campaign_id, input.session_id, {
+            "notes": notes,
+            "initiative_order": initiative_order,
+            "monsters": monsters
+        })
         return {"status": "success"}
 
     elif input.action == "add_monster":
@@ -288,7 +355,11 @@ async def manage_session(
             raise HTTPException(status_code=400, detail="Monster data is required.")
         monster = MonsterState(**input.data['monster'])
         monsters.append(monster.model_dump())
-        redis_manager.redis_client.hset(session_key, "monsters", json.dumps(monsters))
+        chroma_manager.update_session_data(input.campaign_id, input.session_id, {
+            "notes": notes,
+            "initiative_order": initiative_order,
+            "monsters": monsters
+        })
         return {"status": "success"}
 
     elif input.action == "update_monster_hp":
@@ -298,7 +369,11 @@ async def manage_session(
             if monster['name'] == input.data['name']:
                 monster['current_hp'] = input.data['hp']
                 break
-        redis_manager.redis_client.hset(session_key, "monsters", json.dumps(monsters))
+        chroma_manager.update_session_data(input.campaign_id, input.session_id, {
+            "notes": notes,
+            "initiative_order": initiative_order,
+            "monsters": monsters
+        })
         return {"status": "success"}
 
     elif input.action == "get":
@@ -322,12 +397,12 @@ async def generate_map(
 @router.post("/create_content_pack")
 async def create_content_pack(
     input: CreateContentPackInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager)
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
 ):
     # This is a simplified implementation. A real implementation would need to
     # retrieve the actual chunks for the given source.
     chunks = []
-    personality = redis_manager.get_rulebook_personality(input.source_name)
+    personality = chroma_manager.get_rulebook_personality(input.source_name)
     
     packager = ContentPackager()
     packager.create_pack(chunks, personality, input.output_path)
@@ -337,7 +412,7 @@ async def create_content_pack(
 @router.post("/install_content_pack")
 async def install_content_pack(
     input: InstallContentPackInput,
-    redis_manager: RedisDataManager = Depends(get_redis_manager)
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
 ):
     packager = ContentPackager()
     chunks, personality = packager.load_pack(input.pack_path)
@@ -346,3 +421,68 @@ async def install_content_pack(
     # properly store the chunks and personality.
     
     return {"status": "success", "message": "Content pack installed."}
+
+@router.post("/quick_search")
+async def quick_search(
+    input: QuickSearchInput,
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
+    embedding_service: EmbeddingService = Depends(get_embedding_service)
+):
+    """Quick search without extensive query processing for simple lookups"""
+    search_service = EnhancedSearchService(chroma_manager, embedding_service)
+    results = await search_service.quick_search(input.query, input.max_results)
+    
+    return {
+        "results": results,
+        "query": input.query,
+        "search_type": "quick"
+    }
+
+@router.post("/suggest_completions")
+async def suggest_completions(
+    input: QueryCompletionInput,
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
+    embedding_service: EmbeddingService = Depends(get_embedding_service)
+):
+    """Get query completion suggestions based on vocabulary"""
+    search_service = EnhancedSearchService(chroma_manager, embedding_service)
+    completions = await search_service.suggest_completions(input.partial_query, input.limit)
+    
+    return {
+        "completions": completions,
+        "partial_query": input.partial_query
+    }
+
+@router.post("/explain_search")
+async def explain_search(
+    input: SearchExplanationInput,
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
+    embedding_service: EmbeddingService = Depends(get_embedding_service)
+):
+    """Get explanation of why certain search results were returned"""
+    search_service = EnhancedSearchService(chroma_manager, embedding_service)
+    
+    # Get results for the query
+    results, _ = await search_service.search(input.query, max_results=10)
+    
+    # Filter to specific result IDs if provided
+    if input.result_ids:
+        results = [r for r in results if r.content_chunk.id in input.result_ids]
+    
+    explanation = await search_service.explain_search_results(input.query, results)
+    
+    return {
+        "explanation": explanation,
+        "query": input.query
+    }
+
+@router.get("/search_stats")
+async def get_search_stats(
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager),
+    embedding_service: EmbeddingService = Depends(get_embedding_service)
+):
+    """Get statistics about the search service"""
+    search_service = EnhancedSearchService(chroma_manager, embedding_service)
+    stats = search_service.get_search_statistics()
+    
+    return {"stats": stats}

@@ -151,3 +151,36 @@ This feature creates an MCP (Model Context Protocol) tool that enables LLMs to l
 
 1. WHEN a user sends a command to the Discord bot THEN the bot SHALL respond with the requested information.
 2. WHEN a user searches for rulebook content THEN the bot SHALL display the results in an easy-to-read format.
+
+### Requirement 15
+
+**User Story:** As a user, I want advanced search capabilities with hybrid semantic and keyword search, so that I can find information even with imprecise queries.
+
+#### Acceptance Criteria
+
+1. WHEN a user performs a search THEN the system SHALL use both semantic similarity and keyword matching for comprehensive results
+2. WHEN a search query is ambiguous THEN the system SHALL provide query suggestions and completion
+3. WHEN a user wants to explain search results THEN the system SHALL provide detailed explanations of relevance factors
+4. WHEN a user wants search statistics THEN the system SHALL provide analytics about the search service performance
+
+### Requirement 16
+
+**User Story:** As a developer, I want the system to use ChromaDB instead of Redis for better vector search performance, so that queries are faster and more accurate.
+
+#### Acceptance Criteria
+
+1. WHEN the system stores vector embeddings THEN it SHALL use ChromaDB's native vector storage capabilities
+2. WHEN performing vector searches THEN the system SHALL leverage ChromaDB's optimized similarity search
+3. WHEN managing collections THEN the system SHALL use ChromaDB's collection management features
+4. WHEN storing campaign data THEN the system SHALL use ChromaDB's document storage for session management
+
+### Requirement 17
+
+**User Story:** As a user, I want adaptive PDF processing that learns content patterns, so that the system becomes more accurate over time.
+
+#### Acceptance Criteria
+
+1. WHEN processing PDFs THEN the system SHALL learn content type patterns and improve classification accuracy
+2. WHEN processing multiple PDFs from the same system THEN the system SHALL reuse learned patterns for better parsing
+3. WHEN adaptive learning is enabled THEN the system SHALL cache learned patterns for future use
+4. WHEN processing content THEN the system SHALL provide statistics about learned patterns

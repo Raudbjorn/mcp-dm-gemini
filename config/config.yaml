@@ -1,9 +1,6 @@
 # config.yaml
-redis:
-  host: localhost
-  port: 6379
-  db: 0
-  password: null
+chromadb:
+  persist_directory: "./chroma_db"
 
 embedding:
   model: "all-MiniLM-L6-v2"
@@ -14,6 +11,11 @@ pdf_processing:
   max_file_size_mb: 100
   ocr_enabled: true
   preserve_formatting: true
+  # Adaptive PDF processing settings
+  enable_adaptive_learning: true
+  pattern_cache_dir: "./pattern_cache"
+  min_pattern_frequency: 3
+  min_pattern_confidence: 0.6
 
 search:
   default_max_results: 5

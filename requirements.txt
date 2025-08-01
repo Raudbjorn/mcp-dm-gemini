@@ -1,4 +1,4 @@
-redis==4.3.4
+chromadb
 sentence-transformers
 pypdf
 pyyaml
@@ -7,9 +7,19 @@ uvicorn
 pydantic
 httpx
 requests
-fakeredis
 svgwrite
 discord.py
 pytest
 pytest-asyncio
 pytest-discord
+# Enhanced search and PDF processing
+scikit-learn>=1.0.0
+spacy>=3.4.0
+numpy>=1.21.0
+rank-bm25>=0.2.2
+
+# MCP Protocol support
+mcp>=1.0.0
+
+# FastMCP for alternative server implementation
+fastmcp>=0.1.0
