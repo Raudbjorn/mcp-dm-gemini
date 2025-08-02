@@ -12,6 +12,9 @@ import numpy as np
 from typing import Dict, Any, List, Optional
 from ttrpg_assistant.data_models.models import ContentChunk, InitiativeEntry, MonsterState, SourceType, MapGenerationInput
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -591,3 +594,67 @@ async def get_search_stats(
     stats = search_service.get_search_statistics()
     
     return {"stats": stats}
+
+@router.get("/list_rulebooks")
+async def list_rulebooks(
+    chroma_manager: ChromaDataManager = Depends(get_chroma_manager)
+):
+    """List all available rulebooks with basic statistics"""
+    try:
+        # Get all collections
+        collections = chroma_manager.list_collections()
+        
+        # Filter for rulebook-related collections and get stats
+        rulebooks = []
+        for collection_name in collections:
+            if collection_name == "rulebook_index":
+                # Get the rulebook_index collection to find unique rulebooks
+                collection = chroma_manager._get_or_create_collection(collection_name)
+                
+                # Get all documents to extract unique rulebooks
+                try:
+                    results = collection.get()
+                    if results and results.get('metadatas'):
+                        # Extract unique rulebooks from metadata
+                        rulebook_names = set()
+                        for metadata in results['metadatas']:
+                            if metadata.get('rulebook'):
+                                rulebook_names.add(metadata['rulebook'])
+                        
+                        # Get stats for each rulebook
+                        for rulebook_name in rulebook_names:
+                            # Count documents for this rulebook
+                            rulebook_results = collection.get(
+                                where={"rulebook": rulebook_name}
+                            )
+                            
+                            doc_count = len(rulebook_results.get('ids', [])) if rulebook_results else 0
+                            
+                            # Get system info if available
+                            system = None
+                            if rulebook_results and rulebook_results.get('metadatas'):
+                                for metadata in rulebook_results['metadatas']:
+                                    if metadata.get('system'):
+                                        system = metadata['system']
+                                        break
+                            
+                            rulebooks.append({
+                                "name": rulebook_name,
+                                "system": system or "Unknown",
+                                "document_count": doc_count,
+                                "collection": collection_name
+                            })
+                except Exception as e:
+                    logger.error(f"Error getting stats for collection {collection_name}: {e}")
+                    continue
+        
+        # Sort by name
+        rulebooks.sort(key=lambda x: x['name'])
+        
+        return {
+            "rulebooks": rulebooks,
+            "total_count": len(rulebooks)
+        }
+    except Exception as e:
+        logger.error(f"Error listing rulebooks: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to list rulebooks: {str(e)}")

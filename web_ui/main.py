@@ -28,7 +28,7 @@ class AddRulebookRequest(BaseModel):
 class PersonalityRequest(BaseModel):
     action: str
     system_name: Optional[str] = None
-    systems: Optional[List[str]] = None
+    systems: List[str] = []
 
 # HTML Routes
 @app.get("/")
@@ -45,6 +45,10 @@ async def read_campaign():
 
 @app.get("/add-rulebook")
 async def read_add_rulebook():
+    return FileResponse('web_ui/add-rulebook.html')
+
+@app.get("/rulebooks")
+async def read_rulebooks():
     return FileResponse('web_ui/add-rulebook.html')
 
 @app.get("/session")
@@ -102,9 +106,22 @@ async def api_personality(request: PersonalityRequest):
         try:
             response = await client.post(
                 f"{MCP_SERVER_URL}/tools/manage_personality",
-                json=request.dict(),
+                json=request.dict(exclude_none=True),
                 timeout=30.0
             )
+            response.raise_for_status()
+            return response.json()
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=503, detail=f"Unable to connect to MCP server: {e}")
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+
+@app.get("/api/list-rulebooks")
+async def api_list_rulebooks():
+    """Proxy rulebook listing requests to the MCP server"""
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{MCP_SERVER_URL}/tools/list_rulebooks", timeout=30.0)
             response.raise_for_status()
             return response.json()
         except httpx.RequestError as e:
@@ -117,7 +134,7 @@ async def api_health():
     """Check if the MCP server is accessible"""
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(f"{MCP_SERVER_URL}/tools/get_search_stats", timeout=5.0)
+            response = await client.get(f"{MCP_SERVER_URL}/tools/search_stats", timeout=5.0)
             response.raise_for_status()
             return {
                 "status": "healthy",

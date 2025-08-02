@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Rulebook - TTRPG Assistant</title>
+    <title>Rulebooks - TTRPG Assistant</title>
     <link rel="stylesheet" href="/ui/static/style.css">
 </head>
 <body>
@@ -11,13 +11,25 @@
         <a href="/ui/">Home</a>
         <a href="/ui/search">Search</a>
         <a href="/ui/campaign">Campaign</a>
-        <a href="/ui/add-rulebook">Add Rulebook</a>
+        <a href="/ui/rulebooks">Rulebooks</a>
         <a href="/ui/session">Session</a>
         <a href="/ui/personality">Personality</a>
     </nav>
     <main>
-        <h1>📚 Add a New Rulebook</h1>
-        <p class="welcome-text">Upload PDF rulebooks to make them searchable with AI-powered content extraction and adaptive pattern learning.</p>
+        <h1>📚 Rulebook Management</h1>
+        <p class="welcome-text">Manage your PDF rulebooks - view existing ones with statistics or add new ones with AI-powered content extraction and adaptive pattern learning.</p>
+        
+        <!-- Existing Rulebooks Section -->
+        <section class="rulebooks-list-section">
+            <h2>📖 Your Rulebooks</h2>
+            <div id="rulebooks-list" class="rulebooks-container">
+                <p>Loading rulebooks...</p>
+            </div>
+        </section>
+        
+        <!-- Add New Rulebook Section -->
+        <section class="add-rulebook-section">
+            <h2>➕ Add New Rulebook</h2>
         
         <form id="add-rulebook-form">
             <h3>Rulebook Information</h3>
@@ -26,6 +38,7 @@
             <input type="text" id="system" placeholder="Game System (e.g., D&D 5e, Call of Cthulhu)" required>
             <button type="submit">📚 Add Rulebook</button>
         </form>
+        </section>
         
         <div class="status-section">
             <h2>Processing Notes</h2>
@@ -46,5 +59,58 @@
     </main>
     
     <script src="/ui/static/script.js"></script>
+    <script>
+        // Load rulebooks list when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadRulebooks();
+        });
+
+        async function loadRulebooks() {
+            const rulebooksContainer = document.getElementById('rulebooks-list');
+            rulebooksContainer.innerHTML = '<p>Loading rulebooks...</p>';
+            
+            try {
+                const response = await fetch('/ui/api/list-rulebooks');
+                if (!response.ok) throw new Error('Failed to fetch rulebooks');
+                
+                const data = await response.json();
+                
+                if (data.rulebooks && data.rulebooks.length > 0) {
+                    let html = `<div class="rulebooks-summary">
+                        <p><strong>${data.total_count} rulebook${data.total_count !== 1 ? 's' : ''} available</strong></p>
+                    </div>
+                    <div class="rulebooks-grid">`;
+                    
+                    data.rulebooks.forEach(rulebook => {
+                        html += `
+                        <div class="rulebook-card">
+                            <h3>📖 ${rulebook.name}</h3>
+                            <div class="rulebook-stats">
+                                <p><strong>System:</strong> ${rulebook.system}</p>
+                                <p><strong>Documents:</strong> ${rulebook.document_count} chunks</p>
+                                <p><strong>Collection:</strong> ${rulebook.collection}</p>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    html += '</div>';
+                    rulebooksContainer.innerHTML = html;
+                } else {
+                    rulebooksContainer.innerHTML = `
+                        <div class="no-rulebooks">
+                            <p>🔍 No rulebooks found yet!</p>
+                            <p>Add your first rulebook using the form below to get started.</p>
+                        </div>`;
+                }
+            } catch (error) {
+                console.error('Error loading rulebooks:', error);
+                rulebooksContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>❌ Failed to load rulebooks: ${error.message}</p>
+                        <button onclick="loadRulebooks()">🔄 Retry</button>
+                    </div>`;
+            }
+        }
+    </script>
 </body>
 </html>
