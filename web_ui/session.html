@@ -4,41 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session - TTRPG Assistant</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/ui/static/style.css">
 </head>
 <body>
     <nav>
-        <a href="/">Home</a>
-        <a href="/search">Search</a>
-        <a href="/campaign">Campaign</a>
-        <a href="/add-rulebook">Add Rulebook</a>
-        <a href="/session">Session</a>
+        <a href="/ui/">Home</a>
+        <a href="/ui/search">Search</a>
+        <a href="/ui/campaign">Campaign</a>
+        <a href="/ui/add-rulebook">Add Rulebook</a>
+        <a href="/ui/session">Session</a>
+        <a href="/ui/personality">Personality</a>
     </nav>
-    <h1>Session Management</h1>
+    <main>
+        <h1>⚔️ Session Management</h1>
+        <p class="welcome-text">Track initiative, monster HP, session notes, and other real-time gameplay tools for your TTRPG sessions.</p>
 
-    <div id="session-form">
-        <h2>Manage Session</h2>
-        <form id="manage-session-form">
-            <input type="text" id="campaign-id" placeholder="Campaign ID" required>
-            <input type="text" id="session-id" placeholder="Session ID" required>
-            <select id="action" required>
-                <option value="start">Start Session</option>
-                <option value="get">Get Session Data</option>
-                <option value="add_note">Add Note</option>
-                <option value="set_initiative">Set Initiative</option>
-                <option value="add_monster">Add Monster</option>
-                <option value="update_monster_hp">Update Monster HP</option>
-            </select>
-            <textarea id="data" placeholder="Data (in JSON format)"></textarea>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🎯 Initiative Tracker</h3>
+                <p>Manage turn order and initiative during combat encounters.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🐉 Monster Management</h3>
+                <p>Track monster HP, conditions, and other combat statistics.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📝 Session Notes</h3>
+                <p>Record important events, decisions, and story developments.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 Session Data</h3>
+                <p>Access and manage all session-related information.</p>
+            </div>
+        </div>
 
-    <div id="session-data">
-        <h2>Session Data</h2>
-        <div id="session-results"></div>
-    </div>
+        <div class="session-management">
+            <h2>Session Tools</h2>
+            <form id="manage-session-form">
+                <div class="advanced-options">
+                    <div class="option-group">
+                        <label for="campaign-id">Campaign ID:</label>
+                        <input type="text" id="campaign-id" placeholder="my-awesome-campaign" required>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="session-id">Session ID:</label>
+                        <input type="text" id="session-id" placeholder="session-001" required>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="action">Action:</label>
+                        <select id="action" required>
+                            <option value="start">🎬 Start Session</option>
+                            <option value="get">📄 Get Session Data</option>
+                            <option value="add_note">📝 Add Note</option>
+                            <option value="set_initiative">🎯 Set Initiative</option>
+                            <option value="add_monster">🐉 Add Monster</option>
+                            <option value="update_monster_hp">❤️ Update Monster HP</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <label for="data">Action Data (JSON format):</label>
+                <textarea id="data" placeholder='{"note": "The party discovered the hidden treasure room"} or {"character": "Thorin", "initiative": 15}' rows="4"></textarea>
+                
+                <button type="submit">⚔️ Execute Action</button>
+            </form>
+            
+            <div class="status-section">
+                <h2>Quick Actions</h2>
+                <div class="status-healthy">
+                    <p><strong>💡 Example Actions:</strong></p>
+                    <ul style="text-align: left; margin: 1em 0;">
+                        <li><strong>Start Session:</strong> <code>{"title": "The Dragon's Lair"}</code></li>
+                        <li><strong>Add Note:</strong> <code>{"note": "Found magical sword"}</code></li>
+                        <li><strong>Set Initiative:</strong> <code>{"character": "Aragorn", "initiative": 18}</code></li>
+                        <li><strong>Add Monster:</strong> <code>{"name": "Goblin", "hp": 15, "max_hp": 15}</code></li>
+                        <li><strong>Update HP:</strong> <code>{"monster_id": "goblin-1", "hp": 10}</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-section">
+            <h2>Session Data</h2>
+            <div id="session-results">
+                <p>Session results and data will appear here after performing actions...</p>
+            </div>
+        </div>
+    </main>
     
-    <script src="/static/script.js"></script>
+    <script src="/ui/static/script.js"></script>
 </body>
 </html>

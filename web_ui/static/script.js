@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsDiv.innerHTML = '<p>Searching...</p>';
             
             try {
-                const response = await fetch('/api/search', {
+                const response = await fetch('/ui/api/search', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -123,20 +123,63 @@ document.addEventListener('DOMContentLoaded', () => {
             const pdfPath = document.getElementById('pdf-path').value;
             const rulebookName = document.getElementById('rulebook-name').value;
             const system = document.getElementById('system').value;
-            const response = await fetch('/tools/add_rulebook', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    pdf_path: pdfPath,
-                    rulebook_name: rulebookName,
-                    system,
-                }),
-            });
-            const data = await response.json();
-            alert(data.message);
+            
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Processing... (this may take several minutes)';
+            submitButton.disabled = true;
+            
+            try {
+                const response = await fetch('/ui/api/add-rulebook', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        pdf_path: pdfPath,
+                        rulebook_name: rulebookName,
+                        system,
+                    }),
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to add rulebook');
+                }
+                
+                const data = await response.json();
+                
+                const resultsDiv = document.getElementById('add-results') || createResultsDiv();
+                resultsDiv.innerHTML = `
+                    <div class="success-message">
+                        <h3>✅ Success!</h3>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                
+                // Clear the form
+                addRulebookForm.reset();
+                
+            } catch (error) {
+                const resultsDiv = document.getElementById('add-results') || createResultsDiv();
+                resultsDiv.innerHTML = `
+                    <div class="error-message">
+                        <h3>❌ Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
         });
+        
+        function createResultsDiv() {
+            const resultsDiv = document.createElement('div');
+            resultsDiv.id = 'add-results';
+            addRulebookForm.parentNode.insertBefore(resultsDiv, addRulebookForm.nextSibling);
+            return resultsDiv;
+        }
     }
 
     const manageCampaignForm = document.getElementById('manage-campaign-form');

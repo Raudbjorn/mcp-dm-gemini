@@ -11,7 +11,7 @@ app = FastAPI(title="TTRPG Assistant Web UI")
 app.mount("/static", StaticFiles(directory="web_ui/static"), name="static")
 
 # Configuration for the backend MCP server
-MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:8001")
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:8000")
 
 class SearchRequest(BaseModel):
     query: str

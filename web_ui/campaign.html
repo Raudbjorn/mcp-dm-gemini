@@ -4,40 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campaign - TTRPG Assistant</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/ui/static/style.css">
 </head>
 <body>
     <nav>
-        <a href="/">Home</a>
-        <a href="/search">Search</a>
-        <a href="/campaign">Campaign</a>
-        <a href="/add-rulebook">Add Rulebook</a>
-        <a href="/session">Session</a>
+        <a href="/ui/">Home</a>
+        <a href="/ui/search">Search</a>
+        <a href="/ui/campaign">Campaign</a>
+        <a href="/ui/add-rulebook">Add Rulebook</a>
+        <a href="/ui/session">Session</a>
+        <a href="/ui/personality">Personality</a>
     </nav>
-    <h1>Campaign Management</h1>
+    <main>
+        <h1>🏰 Campaign Management</h1>
+        <p class="welcome-text">Organize characters, NPCs, locations, plot points, and other campaign data for your tabletop RPG sessions.</p>
 
-    <div id="campaign-form">
-        <h2>Manage Campaign Data</h2>
-        <form id="manage-campaign-form">
-            <input type="text" id="campaign-id" placeholder="Campaign ID" required>
-            <select id="action" required>
-                <option value="create">Create</option>
-                <option value="read">Read</option>
-                <option value="update">Update</option>
-                <option value="delete">Delete</option>
-            </select>
-            <input type="text" id="data-type" placeholder="Data Type (e.g., character)">
-            <input type="text" id="data-id" placeholder="Data ID (for read, update, delete)">
-            <textarea id="data" placeholder="Data (in JSON format for create, update)"></textarea>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>👥 Characters</h3>
+                <p>Manage player characters, their stats, backstories, and progression.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎭 NPCs</h3>
+                <p>Track non-player characters, their motivations, and relationships.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🗺️ Locations</h3>
+                <p>Document important places, their descriptions, and connections.</p>
+            </div>
+            <div class="feature-card">
+                <h3>📜 Plot Points</h3>
+                <p>Keep track of story threads, quests, and campaign events.</p>
+            </div>
+        </div>
 
-    <div id="campaign-data">
-        <h2>Campaign Data</h2>
-        <div id="campaign-results"></div>
-    </div>
+        <div class="campaign-management">
+            <h2>Campaign Data Management</h2>
+            <form id="manage-campaign-form">
+                <div class="advanced-options">
+                    <div class="option-group">
+                        <label for="campaign-id">Campaign ID:</label>
+                        <input type="text" id="campaign-id" placeholder="my-awesome-campaign" required>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="action">Action:</label>
+                        <select id="action" required>
+                            <option value="create">Create New</option>
+                            <option value="read">Read/View</option>
+                            <option value="update">Update</option>
+                            <option value="delete">Delete</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="data-type">Data Type:</label>
+                        <select id="data-type">
+                            <option value="">Select type...</option>
+                            <option value="character">Character</option>
+                            <option value="npc">NPC</option>
+                            <option value="location">Location</option>
+                            <option value="plot">Plot Point</option>
+                            <option value="session">Session Notes</option>
+                            <option value="item">Item/Equipment</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="data-id">Data ID:</label>
+                        <input type="text" id="data-id" placeholder="unique-identifier (for read/update/delete)">
+                    </div>
+                </div>
+                
+                <label for="data">Data (JSON format for create/update):</label>
+                <textarea id="data" placeholder='{"name": "Example Character", "class": "Fighter", "level": 5}' rows="6"></textarea>
+                
+                <button type="submit">🎲 Execute Action</button>
+            </form>
+        </div>
+
+        <div class="status-section">
+            <h2>Campaign Data</h2>
+            <div id="campaign-results">
+                <p>Results will appear here after performing actions...</p>
+            </div>
+        </div>
+    </main>
     
-    <script src="/static/script.js"></script>
+    <script src="/ui/static/script.js"></script>
 </body>
 </html>

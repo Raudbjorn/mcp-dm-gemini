@@ -4,24 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Rulebook - TTRPG Assistant</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/ui/static/style.css">
 </head>
 <body>
     <nav>
-        <a href="/">Home</a>
-        <a href="/search">Search</a>
-        <a href="/campaign">Campaign</a>
-        <a href="/add-rulebook">Add Rulebook</a>
-        <a href="/session">Session</a>
+        <a href="/ui/">Home</a>
+        <a href="/ui/search">Search</a>
+        <a href="/ui/campaign">Campaign</a>
+        <a href="/ui/add-rulebook">Add Rulebook</a>
+        <a href="/ui/session">Session</a>
+        <a href="/ui/personality">Personality</a>
     </nav>
-    <h1>Add a New Rulebook</h1>
-    <form id="add-rulebook-form">
-        <input type="text" id="pdf-path" placeholder="Path to PDF file">
-        <input type="text" id="rulebook-name" placeholder="Rulebook Name">
-        <input type="text" id="system" placeholder="Game System">
-        <button type="submit">Add Rulebook</button>
-    </form>
+    <main>
+        <h1>📚 Add a New Rulebook</h1>
+        <p class="welcome-text">Upload PDF rulebooks to make them searchable with AI-powered content extraction and adaptive pattern learning.</p>
+        
+        <form id="add-rulebook-form">
+            <h3>Rulebook Information</h3>
+            <input type="text" id="pdf-path" placeholder="Path to PDF file (e.g., /path/to/players-handbook.pdf)" required>
+            <input type="text" id="rulebook-name" placeholder="Rulebook Name (e.g., Player's Handbook)" required>
+            <input type="text" id="system" placeholder="Game System (e.g., D&D 5e, Call of Cthulhu)" required>
+            <button type="submit">📚 Add Rulebook</button>
+        </form>
+        
+        <div class="status-section">
+            <h2>Processing Notes</h2>
+            <div class="status-healthy">
+                <p><strong>📋 What happens when you add a rulebook:</strong></p>
+                <ul style="text-align: left; margin: 1em 0;">
+                    <li>PDF content is extracted and processed</li>
+                    <li>Text is chunked into searchable segments</li>
+                    <li>Semantic embeddings are generated for AI search</li>
+                    <li>System personality is extracted and analyzed</li>
+                    <li>Content is indexed for fast retrieval</li>
+                </ul>
+                <p><em>This process may take several minutes depending on PDF size.</em></p>
+            </div>
+        </div>
+        
+        <div id="add-results"></div>
+    </main>
     
-    <script src="/static/script.js"></script>
+    <script src="/ui/static/script.js"></script>
 </body>
 </html>

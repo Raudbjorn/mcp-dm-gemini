@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personality Management - TTRPG Assistant</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/ui/static/style.css">
 </head>
 <body>
     <nav>
-        <a href="/">Home</a>
-        <a href="/search">Search</a>
-        <a href="/campaign">Campaign</a>
-        <a href="/add-rulebook">Add Rulebook</a>
-        <a href="/session">Session</a>
-        <a href="/personality">Personality</a>
+        <a href="/ui/">Home</a>
+        <a href="/ui/search">Search</a>
+        <a href="/ui/campaign">Campaign</a>
+        <a href="/ui/add-rulebook">Add Rulebook</a>
+        <a href="/ui/session">Session</a>
+        <a href="/ui/personality">Personality</a>
     </nav>
     <h1>RPG Personality Management</h1>
     <div class="personality-container">
@@ -44,7 +44,7 @@
             results.innerHTML = '<p>Loading personalities...</p>';
             
             try {
-                const response = await fetch('/api/personality', {
+                const response = await fetch('/ui/api/personality', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'list' })
@@ -88,7 +88,7 @@
             results.innerHTML = '<p>Loading personality details...</p>';
             
             try {
-                const response = await fetch('/api/personality', {
+                const response = await fetch('/ui/api/personality', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'summary', system_name: systemName })
@@ -140,7 +140,7 @@
             results.innerHTML = '<p>Loading vernacular...</p>';
             
             try {
-                const response = await fetch('/api/personality', {
+                const response = await fetch('/ui/api/personality', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'vernacular', system_name: systemName })
@@ -200,7 +200,7 @@
             results.innerHTML = '<p>Comparing personalities...</p>';
             
             try {
-                const response = await fetch('/api/personality', {
+                const response = await fetch('/ui/api/personality', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'compare', systems: systems })
@@ -245,7 +245,7 @@
             results.innerHTML = '<p>Loading statistics...</p>';
             
             try {
-                const response = await fetch('/api/personality', {
+                const response = await fetch('/ui/api/personality', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'stats' })

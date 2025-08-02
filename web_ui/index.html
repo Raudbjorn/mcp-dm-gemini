@@ -4,20 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TTRPG Assistant</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/ui/static/style.css">
 </head>
 <body>
     <nav>
-        <a href="/">Home</a>
-        <a href="/search">Search</a>
-        <a href="/campaign">Campaign</a>
-        <a href="/add-rulebook">Add Rulebook</a>
-        <a href="/session">Session</a>
-        <a href="/personality">Personality</a>
+        <a href="/ui/">Home</a>
+        <a href="/ui/search">Search</a>
+        <a href="/ui/campaign">Campaign</a>
+        <a href="/ui/add-rulebook">Add Rulebook</a>
+        <a href="/ui/session">Session</a>
+        <a href="/ui/personality">Personality</a>
     </nav>
-    <h1>TTRPG Assistant</h1>
-    <p>Welcome to the TTRPG Assistant! This is a web-based UI for the TTRPG Assistant MCP Server.</p>
+    <div class="container">
+        <h1>🎲 TTRPG Assistant</h1>
+        <p class="welcome-text">Welcome to the TTRPG Assistant! This is a comprehensive web-based interface for managing your tabletop RPG experience with AI-powered search, personality-aware responses, and campaign management.</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🔍 Advanced Search</h3>
+                <p>Hybrid semantic and keyword search with AI-powered suggestions and personality-aware responses.</p>
+                <a href="/search" class="feature-link">Start Searching</a>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📚 Rulebook Management</h3>
+                <p>Add PDF rulebooks with automatic content extraction and adaptive pattern learning.</p>
+                <a href="/add-rulebook" class="feature-link">Add Rulebook</a>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🎭 Personality System</h3>
+                <p>Extract and manage RPG system personalities for authentic, character-appropriate responses.</p>
+                <a href="/personality" class="feature-link">Manage Personalities</a>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🏰 Campaign Management</h3>
+                <p>Organize characters, NPCs, locations, and plot points for your campaigns.</p>
+                <a href="/campaign" class="feature-link">Manage Campaigns</a>
+            </div>
+            
+            <div class="feature-card">
+                <h3>⚔️ Session Tools</h3>
+                <p>Track initiative, monster HP, and take session notes during gameplay.</p>
+                <a href="/session" class="feature-link">Session Tools</a>
+            </div>
+        </div>
+        
+        <div class="status-section">
+            <h2>System Status</h2>
+            <div id="system-status" class="status-indicator">
+                <p>🔄 Checking system status...</p>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <h2>Quick Actions</h2>
+            <div class="quick-search">
+                <input type="text" id="quick-query" placeholder="Quick search across all content...">
+                <button onclick="quickSearch()">🔍 Search</button>
+            </div>
+            <div id="quick-results"></div>
+        </div>
+    </div>
     
-    <script src="/static/script.js"></script>
+    <script src="/ui/static/script.js"></script>
+    <script>
+        // Check system health on page load
+        async function checkSystemHealth() {
+            const statusDiv = document.getElementById('system-status');
+            try {
+                const response = await fetch('/ui/api/health');
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    statusDiv.innerHTML = `
+                        <div class="status-healthy">
+                            <strong>✅ System Healthy</strong>
+                            <p>MCP Server: ${data.mcp_server} (${data.mcp_url})</p>
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="status-unhealthy">
+                            <strong>❌ System Issues</strong>
+                            <p>MCP Server: ${data.mcp_server}</p>
+                            <p>Error: ${data.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status-error">
+                        <strong>⚠️ Connection Error</strong>
+                        <p>Unable to check system status: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Quick search function
+        async function quickSearch() {
+            const query = document.getElementById('quick-query').value.trim();
+            if (!query) return;
+            
+            const resultsDiv = document.getElementById('quick-results');
+            resultsDiv.innerHTML = '<p>Searching...</p>';
+            
+            try {
+                const response = await fetch('/ui/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, max_results: 3 })
+                });
+                
+                if (!response.ok) throw new Error('Search failed');
+                
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    let html = '<h4>Quick Results:</h4>';
+                    data.results.forEach(result => {
+                        html += `
+                            <div class="quick-result">
+                                <strong>${result.content_chunk.title}</strong>
+                                <span class="relevance">${(result.relevance_score * 100).toFixed(0)}%</span><br>
+                                <small>${result.content_chunk.rulebook} • ${result.content_chunk.system}</small>
+                            </div>
+                        `;
+                    });
+                    html += '<p><a href="/search">See all results...</a></p>';
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<p>No results found. <a href="/search">Try advanced search...</a></p>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Allow Enter key in quick search
+        document.getElementById('quick-query').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                quickSearch();
+            }
+        });
+        
+        // Check health on page load
+        window.onload = checkSystemHealth;
+    </script>
 </body>
 </html>
